@@ -174,7 +174,7 @@ function logError (err) {
   var stat;
 
   try {
-    fs.statSync(TORRENT_PATH)
+    stat = fs.statSync(TORRENT_PATH)
   } catch (e) {}
 
   if (!stat || !stat.isDirectory()) {
