@@ -1,6 +1,6 @@
-var del = require('del')
+var rimraf = require('rimraf')
 var gulp = require('gulp')
 
 gulp.task('clean', function (done) {
-  del(['build/**/*'], done)
+  rimraf('build', done)
 })
