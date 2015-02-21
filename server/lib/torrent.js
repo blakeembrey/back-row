@@ -1,6 +1,11 @@
+var fs = require('fs')
+var os = require('os')
+var join = require('path').join
 var lruCache = require('lru-cache')
 var readTorrent = require('read-torrent')
 var torrentStream = require('torrent-stream')
+
+var TORRENT_PATH = join(os.tmpDir(), 'back-row-info-hashes')
 
 /**
  * Create a torrent cache system.
@@ -11,10 +16,10 @@ var torrentStream = require('torrent-stream')
  * @type {LRUCache}
  */
 var TORRENT_CACHE = lruCache({
-  max: 1000 * 1000 * 1000 * 20,
+  max: 20 * 1000 * 1000 * 1000,
   length: torrentLength,
   dispose: disposeTorrent,
-  maxAge: 1000 * 60 * 60 * 24
+  maxAge: 90 * 60 * 1000
 })
 
 /**
@@ -31,7 +36,17 @@ var URI_CACHE = lruCache(100)
  * @param {Object} torrent
  */
 function disposeTorrent (key, torrent) {
-  return torrent.remove(function () {})
+  removeTorrent(torrent, logError)
+}
+
+/**
+ * Remove the torrent from the filesystem.
+ *
+ * @param {Object}   torrent
+ * @param {Function} cb
+ */
+function removeTorrent (torrent, cb) {
+  torrent.remove(cb)
 }
 
 /**
@@ -56,60 +71,74 @@ module.exports = torrent
  * @param {Function} done
  */
 function torrent (uri, done) {
-  if (/^magnet:|^https?:\/\//i.test(uri)) {
-    return createTorrent(uri, done)
+  if (!/^magnet:|^https?:\/\//i.test(uri)) {
+    return done(new Error('Unknown torrent specified'))
   }
 
-  return done(new Error('Unknown torrent specified'))
+  return createTorrentFromUri(uri, done)
 }
 
 /**
- * Create a torrent stream, attempting to use the cache first.
+ * Create a torrent stream from a uri.
  *
  * @param {String}   uri
  * @param {Function} done
  */
-function createTorrent (uri, done) {
-  /**
-   * Create a callback from getting torrent information.
-   *
-   * @param  {Error}    err
-   * @param  {Object}   torrent
-   * @return {Function}
-   */
-  function callback (err, torrent) {
+function createTorrentFromUri (uri, done) {
+  function next (err, torrent) {
     if (err) {
       return done(err)
     }
 
-    // Cache the torrent uri lookup.
     URI_CACHE.set(uri, torrent)
 
-    // Get the torrent information.
-    var engine = TORRENT_CACHE.get(torrent.infoHash)
+    return createTorrent(torrent, done)
+  }
 
-    // Initialise the torrent stream.
-    if (!engine) {
-      engine = createEngine(torrent)
+  if (URI_CACHE.has(uri)) {
+    return next(null, URI_CACHE.get(uri))
+  }
 
-      TORRENT_CACHE.set(engine.infoHash, engine)
-    }
+  return readTorrent(uri, next)
+}
 
-    if (engine.torrent) {
+/**
+ * Create a torrent engine from an object.
+ *
+ * @param {Object}   torrent
+ * @param {Function} done
+ */
+function createTorrent (torrent, done) {
+  var engine = TORRENT_CACHE.get(torrent.infoHash)
+  var exists = !!engine
+
+  function next (engine) {
+    // Avoid unnecessary torrent persistence creation.
+    if (exists) {
       return done(null, engine)
     }
 
-    return engine.on('ready', function () {
-      return done(null, engine)
+    var path = join(TORRENT_PATH, engine.infoHash)
+    var info = JSON.stringify(engine.torrent)
+
+    return fs.writeFile(path, info, function (err) {
+      return done(err, engine)
     })
   }
 
-  // Retrieve from the uri cache first.
-  if (URI_CACHE.has(uri)) {
-    return callback(null, URI_CACHE.get(uri))
+  if (!engine) {
+    engine = createEngine(torrent)
+
+    TORRENT_CACHE.set(engine.infoHash, engine)
   }
 
-  return readTorrent(uri, callback)
+  if (engine.torrent) {
+    return next(engine)
+  }
+
+  return engine.on('ready', function () {
+    return next(engine)
+  })
 }
 
 /**
@@ -121,9 +150,38 @@ function createTorrent (uri, done) {
 function createEngine (uri) {
   var engine = torrentStream(uri)
 
-  // Resume/pause downloading as needed.
   engine.on('interested', function () { engine.swarm.resume() })
   engine.on('uninterested', function () { engine.swarm.pause() })
 
   return engine
 }
+
+/**
+ * Log an error callback that isn't handled otherwise.
+ *
+ * @param {Error} err
+ */
+function logError (err) {
+  if (err) {
+    console.log(err)
+  }
+}
+
+/**
+ * Create and/or read existing torrent files into application.
+ */
+(function () {
+  var stat = fs.statSync(TORRENT_PATH)
+
+  if (!stat || !stat.isDirectory()) {
+    return fs.mkdirSync(TORRENT_PATH)
+  }
+
+  // Load existing torrent hashes.
+  fs.readdirSync(TORRENT_PATH).forEach(function (hash) {
+    var file = join(TORRENT_PATH, hash)
+    var torrent = JSON.parse(fs.readFileSync(file, 'utf8'))
+
+    return createTorrent(torrent, logError)
+  })
+})()
