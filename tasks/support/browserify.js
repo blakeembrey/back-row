@@ -15,11 +15,11 @@ var source = require('vinyl-source-stream')
 module.exports = function (watch) {
   var build = browserify({
     entries: ['./app/js/main.js'],
-    debug:   gutil.env.type !== 'production',
+    debug: process.env.NODE_ENV !== 'production',
     // Required for watchify.
-    cache:        {},
+    cache: {},
     packageCache: {},
-    fullPaths:    watch
+    fullPaths: watch
   })
 
   // Enable `watchify` for rebuilds.
