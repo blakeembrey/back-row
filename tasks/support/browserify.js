@@ -1,5 +1,5 @@
 var gulp = require('gulp')
-var gutil = require('gulp-util')
+var join = require('path').join
 var watchify = require('watchify')
 var browserify = require('browserify')
 var connect = require('gulp-connect')
@@ -15,14 +15,21 @@ var source = require('vinyl-source-stream')
 module.exports = function (watch) {
   var build = browserify({
     entries: ['./app/js/main.js'],
-    debug: process.env.NODE_ENV !== 'production',
+    debug: true,
     // Required for watchify.
     cache: {},
     packageCache: {},
     fullPaths: watch
   })
 
-  // Enable `watchify` for rebuilds.
+  if (process.env.NODE_ENV === 'production') {
+    build.plugin('minifyify', {
+      map: 'bundle.map.json',
+      output: join(__dirname, '../../build/js/bundle.map.json'),
+      compressPath: 'back-row'
+    })
+  }
+
   if (watch) {
     build = watchify(build)
 
@@ -35,7 +42,7 @@ module.exports = function (watch) {
   function bundle () {
     return build.bundle()
       .on('error', function (err) {
-        gutil.log(err.message)
+        console.log(err.message)
       })
       .pipe(source('bundle.js'))
       .pipe(duration('browserify'))
