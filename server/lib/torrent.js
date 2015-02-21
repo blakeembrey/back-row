@@ -171,7 +171,11 @@ function logError (err) {
  * Create and/or read existing torrent files into application.
  */
 (function () {
-  var stat = fs.statSync(TORRENT_PATH)
+  var stat;
+
+  try {
+    fs.statSync(TORRENT_PATH)
+  } catch (e) {}
 
   if (!stat || !stat.isDirectory()) {
     return fs.mkdirSync(TORRENT_PATH)
