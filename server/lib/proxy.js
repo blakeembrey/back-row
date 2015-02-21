@@ -25,7 +25,7 @@ function proxy (uris, opts) {
 
   // Create a response cache to hold the most recent requests.
   var RESPONSE_CACHE = lruCache({
-    max:    opts.max,
+    max: opts.max,
     maxAge: opts.maxAge
   })
 
