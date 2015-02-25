@@ -6,6 +6,12 @@
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/blakeembrey/back-row)
 
+### Configuration
+
+```
+BACK_ROW_TORRENT_CACHE_LIMIT=10000000000
+```
+
 ## Developers
 
 ```

@@ -8,18 +8,14 @@ var torrentStream = require('torrent-stream')
 var TORRENT_PATH = join(os.tmpDir(), 'back-row-info-hashes')
 
 /**
- * Create a torrent cache system.
- *
- * TODO: Manage torrent connections properly with peer throttling.
- * TODO: Allow max size to be passed in on initialisation.
+ * Create a torrent cache.
  *
  * @type {LRUCache}
  */
 var TORRENT_CACHE = lruCache({
-  max: 20 * 1000 * 1000 * 1000,
+  max: process.env.BACK_ROW_TORRENT_CACHE_LIMIT || 10 * 1000 * 1000 * 1000,
   length: torrentLength,
-  dispose: disposeTorrent,
-  maxAge: 90 * 60 * 1000
+  dispose: disposeTorrent
 })
 
 /**
