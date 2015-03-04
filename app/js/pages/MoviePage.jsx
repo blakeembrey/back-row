@@ -13,7 +13,11 @@ function getStateFromStores (imdbId) {
   }
 }
 
-var BACKGROUND_STYLE = style({
+var CONTAINER_STYLE = style.createClass({
+  flex: 1
+})
+
+var BACKGROUND_STYLE = style.createClass({
   position: 'absolute',
   top: 0,
   left: 0,
@@ -52,13 +56,13 @@ var MoviePage = React.createClass({
 
     var backdropImage = resizeImage(movie.backgroundImage, window.innerWidth)
 
-    var backgroundStyle = style(BACKGROUND_STYLE, {
+    var backgroundStyle = {
       backgroundImage: style.url(backdropImage)
-    })
+    }
 
     return (
-      <div style={style({ flex: 1 })}>
-        <div style={backgroundStyle} />
+      <div className={CONTAINER_STYLE.className}>
+        <div className={BACKGROUND_STYLE.className} style={backgroundStyle} />
 
         <RouteHandler movie={movie} />
       </div>

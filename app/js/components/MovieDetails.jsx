@@ -3,13 +3,13 @@ var style = require('free-style')
 var Link = require('react-router').Link
 var moment = require('moment')
 
-var MOVIE_TITLE_STYLE = style({
+var MOVIE_TITLE_STYLE = style.createClass({
   margin: '1em 0',
   fontWeight: 'bold',
   fontSize: '2em'
 })
 
-var MoviePoster = React.createClass({
+var MovieDetails = React.createClass({
 
   propTypes: {
     movie: React.PropTypes.object.isRequired
@@ -19,10 +19,10 @@ var MoviePoster = React.createClass({
     var movie = this.props.movie
 
     return (
-      <div style={this.props.style}>
-        <h2 style={MOVIE_TITLE_STYLE}>{movie.title}</h2>
+      <div>
+        <h2 className={MOVIE_TITLE_STYLE.className}>{movie.title}</h2>
 
-        <div style={{}}>
+        <div>
           <span>{moment(movie.released).format('MMM YYYY')}</span>
 
           <span>{movie.runtime + ' min'}</span>
@@ -32,7 +32,7 @@ var MoviePoster = React.createClass({
           <a href={movie.trailer}>Trailer</a>
         </div>
 
-        <div style={{}}>{movie.overview}</div>
+        <div>{movie.overview}</div>
 
         <div>
           <Link to="watchMovie" params={{ imdbId: movie.imdbId }}>
@@ -45,4 +45,4 @@ var MoviePoster = React.createClass({
 
 })
 
-module.exports = MoviePoster
+module.exports = MovieDetails

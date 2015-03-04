@@ -4,6 +4,10 @@ var Video = require('../components/Video.jsx')
 var MovieActions = require('../actions/MovieActions')
 var MoviesYtsStore = require('../stores/MoviesYtsStore')
 
+var CONTAINER_STYLE = style.createClass({
+  flex: 1
+})
+
 function getStateFromStores (imdbId) {
   return {
     ytsMovie: MoviesYtsStore.get(imdbId)
@@ -42,7 +46,7 @@ var MovieWatchPage = React.createClass({
     var videoSrc = '/torrent/stream?uri=' + encodeURIComponent(ytsMovie.torrents[0].url)
 
     return (
-      <div style={style({ flex: 1 })}>
+      <div className={CONTAINER_STYLE.className}>
         <Video src={videoSrc} poster={movie.backgroundImage} />
       </div>
     )

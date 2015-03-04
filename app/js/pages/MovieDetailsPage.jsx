@@ -4,16 +4,16 @@ var MoviePoster = require('../components/MoviePoster.jsx')
 var MovieDetails = require('../components/MovieDetails.jsx')
 var resizeImage = require('../utils/resize-image')
 
-var MOVIE_POSTER_STYLE = style({
+var MOVIE_POSTER_STYLE = style.createClass({
   padding: '2em',
   height: 'calc(100vh - 34px)'
 })
 
-var MOVIE_CONTENT_STYLE = style({
+var MOVIE_CONTENT_STYLE = style.createClass({
   flex: 1
 })
 
-var MOVIE_PAGE_STYLE = style({
+var MOVIE_PAGE_STYLE = style.createClass({
   flex: 1,
   flexDirection: 'row'
 })
@@ -29,10 +29,10 @@ var MovieDetailsPage = React.createClass({
     var coverImage = resizeImage(movie.coverImage, window.innerWidth)
 
     return (
-      <div style={MOVIE_PAGE_STYLE}>
-        <MoviePoster src={coverImage} style={MOVIE_POSTER_STYLE} />
+      <div className={MOVIE_PAGE_STYLE.className}>
+        <MoviePoster src={coverImage} className={MOVIE_POSTER_STYLE.className} />
 
-        <MovieDetails movie={movie} style={MOVIE_CONTENT_STYLE} />
+        <MovieDetails movie={movie} className={MOVIE_CONTENT_STYLE.className} />
       </div>
     );
   }

@@ -6,7 +6,7 @@ var resizeImage = require('../utils/resize-image')
 var WIDTH = 138 * 0.95
 var HEIGHT = 207 * 0.95
 
-var ITEM_STYLE = style({
+var ITEM_STYLE = style.createClass({
   margin: '0.8em',
   display: 'inline-block',
   width: WIDTH,
@@ -14,7 +14,7 @@ var ITEM_STYLE = style({
   textDecoration: 'none'
 })
 
-var TITLE_STYLE = style({
+var TITLE_STYLE = style.createClass({
   margin: '6px 0 0',
   color: '#fff',
   maxWidth: '100%',
@@ -23,14 +23,14 @@ var TITLE_STYLE = style({
   whiteSpace: 'nowrap'
 })
 
-var COVER_STYLE = style({
+var COVER_STYLE = style.createClass({
   width: WIDTH,
   height: HEIGHT,
   backgroundSize: 'cover',
   borderRadius: 3
 })
 
-var Item = React.createClass({
+var MovieItem = React.createClass({
 
   propTypes: {
     movie: React.PropTypes.object.isRequired
@@ -39,18 +39,18 @@ var Item = React.createClass({
   render: function () {
     var movie = this.props.movie
 
-    var coverStyle = style(COVER_STYLE, {
-      backgroundImage: 'url("' + resizeImage(movie.coverImage, 134) + '")'
-    })
+    var backgroundStyle = {
+      backgroundImage: style.url(resizeImage(movie.coverImage, 134))
+    }
 
     return (
-      <Link to="movie" params={{ imdbId: movie.imdbId }} style={ITEM_STYLE}>
-        <div style={coverStyle} />
-        <p style={TITLE_STYLE}>{movie.title}</p>
+      <Link to="movie" params={{ imdbId: movie.imdbId }} className={ITEM_STYLE.className}>
+        <div className={COVER_STYLE.className} style={backgroundStyle} />
+        <p className={TITLE_STYLE.className}>{movie.title}</p>
       </Link>
     )
   }
 
 })
 
-module.exports = Item
+module.exports = MovieItem

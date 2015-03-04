@@ -2,14 +2,22 @@ var React = require('react')
 var style = require('free-style')
 var videojs = require('video.js')
 
-var VIDEO_WRAPPER_STYLE = style({
+var VIDEO_WRAPPER_STYLE = style.createClass({
   flex: 1,
   padding: '2em',
   justifyContent: 'center',
-  alignItems: 'center'
+  alignItems: 'center',
+
+  '.video-js': {
+    flex: 1
+  },
+
+  '.vjs-poster': {
+    backgroundSize: 'cover'
+  }
 })
 
-var MoviePoster = React.createClass({
+var Video = React.createClass({
 
   propTypes: {
     poster: React.PropTypes.string,
@@ -28,17 +36,17 @@ var MoviePoster = React.createClass({
       controls: true,
       preload: 'auto',
       poster: this.props.poster,
-      width: 640,
-      height: 360
+      width: '100%',
+      height: '100%'
     })
   },
 
   render: function () {
     return (
-      <div ref="target" style={VIDEO_WRAPPER_STYLE} />
+      <div ref="target" className={VIDEO_WRAPPER_STYLE.className} />
     )
   }
 
 })
 
-module.exports = MoviePoster
+module.exports = Video

@@ -13,7 +13,7 @@ function getStateFromStores() {
   }
 }
 
-var LIST_STYLE = style({
+var LIST_STYLE = style.createClass({
   textAlign: 'left',
   flexWrap: 'wrap',
   flexDirection: 'row',
@@ -49,14 +49,14 @@ var MoviesListPage = React.createClass({
 
   renderItems: function (children) {
     return (
-      <div style={LIST_STYLE} ref="items">{children}</div>
+      <div className={LIST_STYLE.className} ref="items">{children}</div>
     )
   },
 
   render: function () {
-    var movies = this.state.movieList.map(function (id) {
-      return MoviesStore.get(id)
-    })
+    var movies = this.state.movieList
+      .map(id => MoviesStore.get(id))
+      .filter(movie => !!movie)
 
     PageActions.setTitle('Movies')
 
