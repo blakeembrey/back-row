@@ -16,7 +16,7 @@ var MovieStore = new Store({
 function addTraktMovie (movie) {
   var imdbId = movie.imdb_id
 
-  _movies[imdbId] = extend({}, _movies[imdbId], {
+  _movies[imdbId] = {
     imdbId: imdbId,
     cerfication: movie.certification,
     genres: movie.genres,
@@ -27,7 +27,7 @@ function addTraktMovie (movie) {
     released: new Date(movie.released * 1000),
     title: movie.title,
     trailer: movie.trailer
-  })
+  }
 }
 
 MovieStore.dispatchToken = Dispatcher.register(function (payload) {
