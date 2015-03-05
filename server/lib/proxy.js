@@ -15,15 +15,12 @@ module.exports = proxy
  * @return {Router}
  */
 function proxy (uris, opts) {
-  var updatedAt = Date.now()
-
-  // TODO: Add methods to proxy option.
   opts = extend({
     max: 200,
-    maxAge: 1000 * 60 * 30
+    maxAge: 1000 * 60 * 30,
+    methods: ['get', 'head', 'options']
   }, opts)
 
-  // Create a response cache to hold the most recent requests.
   var RESPONSE_CACHE = lruCache({
     max: opts.max,
     maxAge: opts.maxAge
@@ -36,14 +33,18 @@ function proxy (uris, opts) {
     var key = req.method + ':' + path
 
     /**
-     * Respond to the request.
+     * Respond to the API request.
      *
-     * @param {Object} opts
+     * @param {Promise} response
      */
-    function respond (opts) {
-      res.status(opts.statusCode)
-      res.set(opts.headers)
-      res.send(opts.body)
+    function respond (response) {
+      return response
+        .then(function (opts) {
+          return res.status(opts.statusCode).set(opts.headers).send(opts.body)
+        })
+        .catch(function () {
+          return res.status(502).end()
+        })
     }
 
     // Remove any `x-forwarded-*` headers set by the upstream proxy.
@@ -55,50 +56,65 @@ function proxy (uris, opts) {
       }
     })
 
-    // Respond if the response has already been cached.
-    if (RESPONSE_CACHE.has(key)) {
-      return respond(RESPONSE_CACHE.get(key))
-    }
+    var response = RESPONSE_CACHE.get(key)
 
-    // Recursively call each uri until success.
-    return (function handle (attemptsRemaining) {
-      if (!attemptsRemaining) {
-        return res.status(502).end()
-      }
+    if (!response) {
+      response = handle(uris, path, req).then(function (opts) {
+        uris = uris.slice(opts.index).concat(uris.slice(0, opts.index))
 
-      var now = Date.now()
-      var uri = url.resolve(uris[0], path)
-
-      var proxy = request({
-        uri: uri,
-        timeout: 2 * 60 * 1000,
-        encoding: null,
-        method: req.method
-      }, function (err, res) {
-        if (err || res.statusCode >= 500) {
-          if (now > updatedAt) {
-            updatedAt = now
-            uris.push(uris.shift())
-          }
-
-          return handle(attemptsRemaining - 1)
-        }
-
-        // Remove cookies.
-        delete res.headers['set-cookie']
-        delete res.headers['set-cookie2']
-
-        // Cache the response body and headers, if the response was valid.
-        RESPONSE_CACHE.set(key, {
-          body: res.body,
-          statusCode: res.statusCode,
-          headers: res.headers
-        })
-
-        return respond(res)
+        return opts
       })
 
-      return req.pipe(proxy)
-    })(uris.length)
+      // Cache the API request for future users.
+      if (opts.methods.indexOf(req.method)) {
+        RESPONSE_CACHE.set(key,  response)
+      }
+    }
+
+    return respond(response)
   }
+}
+
+/**
+ * Make the API request.
+ *
+ * @param  {Array}   uris
+ * @param  {String}  path
+ * @param  {Object}  req
+ * @param  {Number}  index
+ * @return {Promise}
+ */
+function handle (uris, path, req, index) {
+  index = index || 0
+
+  if (index >= uris.length) {
+    return Promise.reject(new Error('Load failed'))
+  }
+
+  var uri = url.resolve(uris[0], path)
+
+  return new Promise(function (resolve, reject) {
+    var proxy = request({
+      uri: uri,
+      encoding: null,
+      method: req.method
+    }, function (err, res) {
+      if (err || res.statusCode >= 500) {
+        return resolve(handle(uris, path, req, index + 1))
+      }
+
+      // Never set cookies.
+      delete res.headers['set-cookie']
+      delete res.headers['set-cookie2']
+
+      return resolve({
+        body: res.body,
+        statusCode: res.statusCode,
+        headers: res.headers,
+        index: index
+      })
+    })
+
+    req.pipe(proxy)
+  })
 }
