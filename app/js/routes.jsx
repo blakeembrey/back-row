@@ -12,12 +12,12 @@ var routes = (
   <Route name="app" path="/" handler={AppPage}>
     <Redirect path="/" to="movies" />
 
-    <Route name="movies" path="/movies" handler={MoviesListPage} />
+    <Route name="movies" path="movies" handler={MoviesListPage} />
 
-    <Route name="movie" path="/movies/:imdbId" handler={MoviePage}>
+    <Route name="movie" path="movies/:imdbId" handler={MoviePage}>
       <Route handler={MovieDetailsPage} />
 
-      <Route name="watchMovie" path="/movies/:imdbId/watch" handler={MovieWatchPage} />
+      <Route name="watchMovie" path="watch" handler={MovieWatchPage} />
     </Route>
   </Route>
 )
