@@ -15,24 +15,22 @@ function request (opts) {
 
 function requestBasic (opts) {
   return request(opts)
-    .then(status())
+    .use(status())
 }
 
 function requestYts (opts) {
   return request(opts)
     .use(prefix('/proxy/yts'))
-    .then(status())
+    .use(status())
 }
 
 function requestTraktTv (opts) {
   return request(opts)
     .use(prefix('/proxy/trakt'))
-    .then(status())
-    .then(function (res) {
+    .use(status())
+    .after(function (res) {
       if (res.body && res.body.error) {
         return Promise.reject(res.error(res.body.error))
       }
-
-      return res
     })
 }
