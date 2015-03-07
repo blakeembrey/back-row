@@ -13,7 +13,7 @@ var TORRENT_PATH = join(os.tmpDir(), 'back-row-info-hashes')
  * @type {LRUCache}
  */
 var TORRENT_CACHE = lruCache({
-  max: process.env.BACK_ROW_TORRENT_CACHE_LIMIT || 10 * 1000 * 1000 * 1000,
+  max: process.env.TORRENT_CACHE_LIMIT || 10 * 1000 * 1000 * 1000,
   length: torrentLength,
   dispose: disposeTorrent
 })

@@ -6,11 +6,16 @@
   "scripts": {
     "start": "node back-row.js",
     "lint": "standard",
-    "test": "npm run lint",
-    "postinstall": "gulp build"
+    "test": "npm run lint"
   },
   "browserify": {
     "transform": [
+      [
+        "stringify",
+        [
+          ".html"
+        ]
+      ],
       "babelify"
     ]
   },
@@ -37,12 +42,14 @@
   "homepage": "https://github.com/blakeembrey/back-row",
   "dependencies": {
     "babelify": "^5.0.3",
-    "browserify": "^8.1.3",
-    "es6-promise": "^2.0.0",
+    "browserify": "^9.0.3",
+    "client-oauth2": "^0.2.3",
+    "envify": "^3.2.0",
+    "es6-promise": "^2.0.1",
     "express": "^4.10.1",
     "extend": "^2.0.0",
     "flux": "^2.0.1",
-    "free-style": "^0.1.0",
+    "free-style": "^0.1.2",
     "gulp": "^3.8.9",
     "gulp-connect": "^2.1.0",
     "gulp-duration": "0.0.0",
@@ -52,10 +59,10 @@
     "minifyify": "^6.2.2",
     "moment": "^2.9.0",
     "normalize.css": "^3.0.2",
-    "popsicle": "^0.3.2",
-    "popsicle-constants": "0.0.1",
-    "popsicle-prefix": "0.0.1",
-    "popsicle-status": "0.0.2",
+    "popsicle": "^0.4.0",
+    "popsicle-constants": "^0.1.0",
+    "popsicle-prefix": "^0.1.0",
+    "popsicle-status": "^0.1.0",
     "pump": "^1.0.0",
     "range-parser": "^1.0.2",
     "react": "^0.12.0",
@@ -66,7 +73,8 @@
     "require-dir": "^0.1.0",
     "rimraf": "^2.2.8",
     "standard": "^2.6.2",
-    "torrent-stream": "^0.16.2",
+    "stringify": "^3.1.0",
+    "torrent-stream": "^0.17.0",
     "video.js": "^4.10.2",
     "vinyl-source-stream": "^1.0.0",
     "watchify": "^2.1.1"

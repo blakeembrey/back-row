@@ -13,7 +13,7 @@ var MovieActions = {
       return Promise.resolve(movie)
     }
 
-    var uri = '/movie/summary/{TRAKT_API_KEY}/' + imdbId
+    var uri = '/movie/summary/{TRAKT_TV_API_KEY}/' + imdbId
 
     return request.trakt(uri)
       .then(function (res) {

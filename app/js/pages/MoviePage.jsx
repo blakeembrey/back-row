@@ -14,7 +14,8 @@ function getStateFromStores (imdbId) {
 }
 
 var CONTAINER_STYLE = style.createClass({
-  flex: 1
+  flex: 1,
+  backgroundColor: '#000'
 })
 
 var BACKGROUND_STYLE = style.createClass({
@@ -23,7 +24,7 @@ var BACKGROUND_STYLE = style.createClass({
   left: 0,
   bottom: 0,
   right: 0,
-  opacity: 0.35,
+  opacity: 0.3,
   backgroundSize: 'cover',
   backgroundPosition: 'center'
 })

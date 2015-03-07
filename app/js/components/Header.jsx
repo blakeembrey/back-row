@@ -1,14 +1,14 @@
 var React = require('react')
 var style = require('free-style')
 var Link = require('react-router').Link
+var Colors = require('../constants/Colors')
 
 var HEADER_STYLE = style.createClass({
   position: 'fixed',
   top: 0,
   left: 0,
   right: 0,
-  boxShadow: '0px -4px 8px 6px rgba(0, 0, 0, 0.9)',
-  backgroundColor: '#17181b',
+  backgroundColor: Colors.WET_ASPHALT,
   zIndex: 10
 })
 

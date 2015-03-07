@@ -1,11 +1,13 @@
 var React = require('react')
 var ReactList = require('react-list')
 var style = require('free-style')
+var Spinner = require('../components/Spinner.jsx')
 var MovieItem = require('../components/MovieItem.jsx')
 var MoviesStore = require('../stores/MoviesStore')
 var MovieListStore = require('../stores/MovieListStore')
 var MovieListActions = require('../actions/MovieListActions')
 var PageActions = require('../actions/PageActions')
+var Colors = require('../constants/Colors')
 
 function getStateFromStores() {
   return {
@@ -27,7 +29,7 @@ var MoviesListPage = React.createClass({
 
   getInitialState: getStateFromStores,
 
-  fetch: function (cb) {
+  fetch (cb) {
     var self = this
 
     return MovieListActions.nextPage()
@@ -41,19 +43,19 @@ var MoviesListPage = React.createClass({
       })
   },
 
-  renderItem: function (movie, index) {
-    return (
-      <MovieItem key={index} movie={movie} />
-    )
+  renderItem (movie, index) {
+    return <MovieItem key={index} movie={movie} />
   },
 
-  renderItems: function (children) {
-    return (
-      <div className={LIST_STYLE.className} ref="items">{children}</div>
-    )
+  renderItems (children) {
+    return <div className={LIST_STYLE.className} ref='items'>{children}</div>
   },
 
-  render: function () {
+  renderLoading () {
+    return <Spinner fill={Colors.TURQUOISE} style={{ padding: '1em', width: '10em' }} />
+  },
+
+  render () {
     var movies = this.state.movieList
       .map(id => MoviesStore.get(id))
       .filter(movie => !!movie)
@@ -73,7 +75,7 @@ var MoviesListPage = React.createClass({
     )
   },
 
-  onChange: function () {
+  onChange () {
     this.setState(getStateFromStores())
   }
 

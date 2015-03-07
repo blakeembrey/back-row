@@ -25,7 +25,7 @@ var MovieListActions = {
   },
 
   loadSummaries: function (ids) {
-    var uri = '/movie/summaries/{TRAKT_API_KEY}/' + ids.join(',') + '/full'
+    var uri = '/movie/summaries/{TRAKT_TV_API_KEY}/' + ids.join(',') + '/full'
 
     return request.trakt(uri)
       .then(function (res) {

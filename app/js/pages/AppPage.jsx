@@ -3,12 +3,13 @@ var style = require('free-style')
 var RouteHandler = require('react-router').RouteHandler
 var Header = require('../components/Header.jsx')
 var Container = require('../components/Container.jsx')
+var Colors = require('../constants/Colors')
 
 var APP_STYLE = style.createClass({
   color: '#fff',
   minWidth: '100vw',
   minHeight: '100vh',
-  backgroundColor: '#17181b'
+  backgroundColor: Colors.MIDNIGHT_BLUE
 })
 
 var App = React.createClass({

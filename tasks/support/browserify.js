@@ -5,6 +5,7 @@ var browserify = require('browserify')
 var connect = require('gulp-connect')
 var duration = require('gulp-duration')
 var source = require('vinyl-source-stream')
+var envify = require('envify/custom')
 
 /**
  * Create a browserify build instance.
@@ -22,13 +23,16 @@ module.exports = function (watch) {
     fullPaths: watch
   })
 
-  if (process.env.NODE_ENV === 'production') {
-    build.plugin('minifyify', {
-      map: 'bundle.map.json',
-      output: join(__dirname, '../../build/js/bundle.map.json'),
-      compressPath: 'back-row'
-    })
-  }
+  build.transform(envify({
+    TRAKT_TV_CLIENT_ID: process.env.TRAKT_TV_CLIENT_ID,
+    TRAKT_TV_CLIENT_SECRET: process.env.TRAKT_TV_CLIENT_SECRET
+  }))
+
+  build.plugin('minifyify', {
+    map: 'bundle.map.json',
+    output: join(__dirname, '../../build/js/bundle.map.json'),
+    compressPath: 'back-row'
+  })
 
   if (watch) {
     build = watchify(build)
@@ -42,7 +46,9 @@ module.exports = function (watch) {
   function bundle () {
     return build.bundle()
       .on('error', function (err) {
-        console.log(err.message)
+        console.log(err && err.stack || err)
+
+        this.emit('end')
       })
       .pipe(source('bundle.js'))
       .pipe(duration('browserify'))

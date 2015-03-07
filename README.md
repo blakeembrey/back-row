@@ -9,7 +9,9 @@
 ### Configuration
 
 ```
-BACK_ROW_TORRENT_CACHE_LIMIT=10000000000
+export TRAKT_TV_CLIENT_ID=abc
+export TRAKT_TV_CLIENT_SECRET=123
+export TORRENT_CACHE_LIMIT=10000000000
 ```
 
 ## Developers
@@ -23,6 +25,9 @@ cd back-row && npm install
 
 # Run development server
 gulp server
+
+# Build the output directory
+gulp build
 ```
 
 ## License

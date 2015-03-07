@@ -1,14 +1,15 @@
 var React = require('react')
 var style = require('free-style')
+var Colors = require('../constants/Colors')
 
 var POSTER_STYLE = style.createClass({
-  height: '100%'
+  height: '100%',
+  flexShrink: 0
 })
 
 var IMAGE_STYLE = style.createClass({
   height: '100%',
-  boxShadow: '0 0 6px rgba(0, 0, 0, 0.5)',
-  borderRadius: 5
+  borderRadius: 6
 })
 
 var MoviePoster = React.createClass({
