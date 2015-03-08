@@ -4,7 +4,7 @@
   "description": "A media server for watching movies and shows in a browser, streamed directly from a server",
   "main": "back-row.js",
   "scripts": {
-    "start": "node back-row.js",
+    "start": "node .",
     "lint": "standard",
     "test": "npm run lint"
   },
@@ -81,7 +81,7 @@
     "watchify": "^2.1.1"
   },
   "engines": {
-    "node": "^0.10.0"
+    "node": ">=0.10"
   },
   "standard": {
     "ignore": [
