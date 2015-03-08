@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node .",
     "lint": "standard",
-    "test": "npm run lint"
+    "test": "npm run lint",
+    "build": "gulp build",
+    "postinstall": "npm run build"
   },
   "browserify": {
     "transform": [
