@@ -1,18 +1,14 @@
 var gulp = require('gulp')
-var connect = require('gulp-connect')
+var express = require('express')
 var PORT = process.env.PORT || 3000
 
-gulp.task('server', ['watch'], server)
+gulp.task('server', server)
 
-function server () {
-  connect.server({
-    root: 'build',
-    port: PORT,
-    livereload: true,
-    middleware: function(connect, opt) {
-      return [
-        require('../server')
-      ]
-    }
-  })
+function server (done) {
+  var app = express()
+
+  app.use(require('connect-livereload')())
+  app.use(require('../'))
+
+  app.listen(PORT, done)
 }

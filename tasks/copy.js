@@ -1,23 +1,23 @@
 var gulp = require('gulp')
 var join = require('path').join
-var connect = require('gulp-connect')
+var livereload = require('gulp-livereload')
 
-gulp.task('copy:videojs', ['clean'], function () {
+gulp.task('copy:videojs', ['clean:vendor'], function () {
   return gulp.src(join(__dirname, '../node_modules/video.js/dist/video-js/**/*'))
     .pipe(gulp.dest('build/vendor/videojs'))
-    .pipe(connect.reload())
+    .pipe(livereload())
 })
 
-gulp.task('copy:normalize', ['clean'], function () {
+gulp.task('copy:normalize', ['clean:vendor'], function () {
   return gulp.src(join(__dirname, '../node_modules/normalize.css/normalize.css'))
     .pipe(gulp.dest('build/vendor/normalize'))
-    .pipe(connect.reload())
+    .pipe(livereload())
 })
 
-gulp.task('copy:assets', ['clean'], function () {
-  return gulp.src('app/**/*.{css,html}')
+gulp.task('copy:assets', ['clean:assets'], function () {
+  return gulp.src('app/index.html')
     .pipe(gulp.dest('build/'))
-    .pipe(connect.reload())
+    .pipe(livereload())
 })
 
 gulp.task('copy', [

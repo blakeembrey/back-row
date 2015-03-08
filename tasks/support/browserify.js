@@ -2,7 +2,7 @@ var gulp = require('gulp')
 var join = require('path').join
 var watchify = require('watchify')
 var browserify = require('browserify')
-var connect = require('gulp-connect')
+var livereload = require('gulp-livereload')
 var duration = require('gulp-duration')
 var source = require('vinyl-source-stream')
 var envify = require('envify/custom')
@@ -53,7 +53,7 @@ module.exports = function (watch) {
       .pipe(source('bundle.js'))
       .pipe(duration('browserify'))
       .pipe(gulp.dest('./build/js/'))
-      .pipe(connect.reload())
+      .pipe(livereload())
   }
 
   return bundle()
