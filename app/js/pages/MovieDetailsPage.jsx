@@ -4,16 +4,16 @@ var MoviePoster = require('../components/MoviePoster.jsx')
 var MovieDetails = require('../components/MovieDetails.jsx')
 var resizeImage = require('../utils/resize-image')
 
-var MOVIE_POSTER_STYLE = style.createClass({
+var MOVIE_POSTER_STYLE = style.registerClass({
   padding: '2em',
   height: 'calc(100vh - 34px)'
 })
 
-var MOVIE_CONTENT_STYLE = style.createClass({
+var MOVIE_CONTENT_STYLE = style.registerClass({
   flex: 1
 })
 
-var MOVIE_PAGE_STYLE = style.createClass({
+var MOVIE_PAGE_STYLE = style.registerClass({
   flex: 1,
   flexDirection: 'row'
 })

@@ -1,7 +1,7 @@
 var React = require('react')
 var style = require('free-style')
 
-var CONTAINER_STYLE = style.createClass({
+var CONTAINER_STYLE = style.registerClass({
   minWidth: '100%',
   minHeight: 'calc(100vh - 34px)',
   position: 'relative'

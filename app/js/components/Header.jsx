@@ -3,7 +3,7 @@ var style = require('free-style')
 var Link = require('react-router').Link
 var Colors = require('../constants/Colors')
 
-var HEADER_STYLE = style.createClass({
+var HEADER_STYLE = style.registerClass({
   position: 'fixed',
   top: 0,
   left: 0,
@@ -12,7 +12,7 @@ var HEADER_STYLE = style.createClass({
   zIndex: 10
 })
 
-var TITLE_STYLE = style.createClass({
+var TITLE_STYLE = style.registerClass({
   fontSize: '1em',
   margin: 0,
   padding: '0.3em',
@@ -24,7 +24,7 @@ var TITLE_STYLE = style.createClass({
   textDecoration: 'none'
 })
 
-var SPACER_STYLE = style.createClass({
+var SPACER_STYLE = style.registerClass({
   height: 1 * 1.5 + 0.3 * 2 + 'em'
 })
 

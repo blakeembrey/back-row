@@ -52,7 +52,7 @@
     "express": "^4.10.1",
     "extend": "^2.0.0",
     "flux": "^2.0.1",
-    "free-style": "^0.1.2",
+    "free-style": "^0.2.2",
     "gulp": "^3.8.9",
     "gulp-duration": "0.0.0",
     "gulp-livereload": "^3.8.0",

@@ -4,7 +4,7 @@ var Video = require('../components/Video.jsx')
 var MovieActions = require('../actions/MovieActions')
 var MoviesYtsStore = require('../stores/MoviesYtsStore')
 
-var CONTAINER_STYLE = style.createClass({
+var CONTAINER_STYLE = style.registerClass({
   flex: 1
 })
 

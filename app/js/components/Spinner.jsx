@@ -4,7 +4,7 @@ var style = require('free-style')
 var svg = require('./Spinner.html')
 var Colors = require('../constants/Colors')
 
-var SPINNER_STYLE = style.createClass({
+var SPINNER_STYLE = style.registerClass({
   margin: '0 auto',
   path: {
     fill: Colors.TURQUOISE

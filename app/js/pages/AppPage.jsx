@@ -5,7 +5,7 @@ var Header = require('../components/Header.jsx')
 var Container = require('../components/Container.jsx')
 var Colors = require('../constants/Colors')
 
-var APP_STYLE = style.createClass({
+var APP_STYLE = style.registerClass({
   color: '#fff',
   minWidth: '100vw',
   minHeight: '100vh',

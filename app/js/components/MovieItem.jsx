@@ -8,7 +8,7 @@ var BORDER = 3
 var WIDTH = ~~((138 * 0.95) + BORDER)
 var HEIGHT = ~~((207 * 0.95) + BORDER)
 
-var TITLE_STYLE = style.createClass({
+var TITLE_STYLE = style.registerClass({
   margin: '6px 0 0',
   color: '#fff',
   maxWidth: '100%',
@@ -17,7 +17,7 @@ var TITLE_STYLE = style.createClass({
   whiteSpace: 'nowrap'
 })
 
-var COVER_STYLE = style.createClass({
+var COVER_STYLE = style.registerClass({
   width: WIDTH,
   height: HEIGHT,
   borderRadius: BORDER,
@@ -26,13 +26,13 @@ var COVER_STYLE = style.createClass({
   overflow: 'hidden'
 })
 
-var BACKGROUND_STYLE = style.createClass({
+var BACKGROUND_STYLE = style.registerClass({
   flex: 1,
   backgroundSize: 'cover',
   backgroundPosition: 'center'
 })
 
-var ITEM_STYLE = style.createClass({
+var ITEM_STYLE = style.registerClass({
   margin: '0.8em',
   width: WIDTH,
   fontSize: '0.8em',

@@ -3,7 +3,7 @@ var style = require('free-style')
 var Link = require('react-router').Link
 var moment = require('moment')
 
-var MOVIE_TITLE_STYLE = style.createClass({
+var MOVIE_TITLE_STYLE = style.registerClass({
   margin: '1em 0',
   fontWeight: 'bold',
   fontSize: '2em'

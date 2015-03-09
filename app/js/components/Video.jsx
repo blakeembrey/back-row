@@ -2,7 +2,7 @@ var React = require('react')
 var style = require('free-style')
 var videojs = require('video.js')
 
-var VIDEO_WRAPPER_STYLE = style.createClass({
+var VIDEO_WRAPPER_STYLE = style.registerClass({
   flex: 1,
   padding: '2em',
   justifyContent: 'center',

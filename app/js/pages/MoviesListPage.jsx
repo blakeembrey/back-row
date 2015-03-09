@@ -15,7 +15,7 @@ function getStateFromStores() {
   }
 }
 
-var LIST_STYLE = style.createClass({
+var LIST_STYLE = style.registerClass({
   textAlign: 'left',
   flexWrap: 'wrap',
   flexDirection: 'row',

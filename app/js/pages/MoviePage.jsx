@@ -13,12 +13,12 @@ function getStateFromStores (imdbId) {
   }
 }
 
-var CONTAINER_STYLE = style.createClass({
+var CONTAINER_STYLE = style.registerClass({
   flex: 1,
   backgroundColor: '#000'
 })
 
-var BACKGROUND_STYLE = style.createClass({
+var BACKGROUND_STYLE = style.registerClass({
   position: 'absolute',
   top: 0,
   left: 0,
