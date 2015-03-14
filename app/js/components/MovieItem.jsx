@@ -1,5 +1,5 @@
 var React = require('react')
-var style = require('free-style')
+var Style = require('react-free-style').fresh()
 var Link = require('react-router').Link
 var resizeImage = require('../utils/resize-image')
 var Colors = require('../constants/Colors')
@@ -8,7 +8,7 @@ var BORDER = 3
 var WIDTH = ~~((138 * 0.95) + BORDER)
 var HEIGHT = ~~((207 * 0.95) + BORDER)
 
-var TITLE_STYLE = style.registerClass({
+var TITLE_STYLE = Style.registerClass({
   margin: '6px 0 0',
   color: '#fff',
   maxWidth: '100%',
@@ -17,7 +17,7 @@ var TITLE_STYLE = style.registerClass({
   whiteSpace: 'nowrap'
 })
 
-var COVER_STYLE = style.registerClass({
+var COVER_STYLE = Style.registerClass({
   width: WIDTH,
   height: HEIGHT,
   borderRadius: BORDER,
@@ -26,13 +26,13 @@ var COVER_STYLE = style.registerClass({
   overflow: 'hidden'
 })
 
-var BACKGROUND_STYLE = style.registerClass({
+var BACKGROUND_STYLE = Style.registerClass({
   flex: 1,
   backgroundSize: 'cover',
   backgroundPosition: 'center'
 })
 
-var ITEM_STYLE = style.registerClass({
+var ITEM_STYLE = Style.registerClass({
   margin: '0.8em',
   width: WIDTH,
   fontSize: '0.8em',
@@ -49,6 +49,8 @@ var ITEM_STYLE = style.registerClass({
 
 var MovieItem = React.createClass({
 
+  mixins: [Style.Mixin],
+
   propTypes: {
     movie: React.PropTypes.object.isRequired
   },
@@ -57,7 +59,7 @@ var MovieItem = React.createClass({
     var movie = this.props.movie
 
     var backgroundStyle = {
-      backgroundImage: style.url(resizeImage(movie.coverImage, 134))
+      backgroundImage: Style.url(resizeImage(movie.coverImage, 134))
     }
 
     return (

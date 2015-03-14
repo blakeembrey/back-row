@@ -1,7 +1,7 @@
 var React = require('react')
 var State = require('react-router').State
 var RouteHandler = require('react-router').RouteHandler
-var style = require('free-style')
+var Style = require('react-free-style').fresh()
 var MoviesStore = require('../stores/MoviesStore')
 var PageActions = require('../actions/PageActions')
 var MovieActions = require('../actions/MovieActions')
@@ -13,12 +13,12 @@ function getStateFromStores (imdbId) {
   }
 }
 
-var CONTAINER_STYLE = style.registerClass({
+var CONTAINER_STYLE = Style.registerClass({
   flex: 1,
   backgroundColor: '#000'
 })
 
-var BACKGROUND_STYLE = style.registerClass({
+var BACKGROUND_STYLE = Style.registerClass({
   position: 'absolute',
   top: 0,
   left: 0,
@@ -31,7 +31,7 @@ var BACKGROUND_STYLE = style.registerClass({
 
 var MoviePage = React.createClass({
 
-  mixins: [State, MoviesStore.Mixin],
+  mixins: [State, Style.Mixin, MoviesStore.Mixin],
 
   getInitialState: function () {
     return getStateFromStores(this.getParams().imdbId)
@@ -58,7 +58,7 @@ var MoviePage = React.createClass({
     var backdropImage = resizeImage(movie.backgroundImage, window.innerWidth)
 
     var backgroundStyle = {
-      backgroundImage: style.url(backdropImage)
+      backgroundImage: Style.url(backdropImage)
     }
 
     return (

@@ -1,9 +1,9 @@
 var React = require('react')
-var style = require('free-style')
+var Style = require('react-free-style').fresh()
 var Link = require('react-router').Link
 var Colors = require('../constants/Colors')
 
-var HEADER_STYLE = style.registerClass({
+var HEADER_STYLE = Style.registerClass({
   position: 'fixed',
   top: 0,
   left: 0,
@@ -12,7 +12,7 @@ var HEADER_STYLE = style.registerClass({
   zIndex: 10
 })
 
-var TITLE_STYLE = style.registerClass({
+var TITLE_STYLE = Style.registerClass({
   fontSize: '1em',
   margin: 0,
   padding: '0.3em',
@@ -24,11 +24,13 @@ var TITLE_STYLE = style.registerClass({
   textDecoration: 'none'
 })
 
-var SPACER_STYLE = style.registerClass({
+var SPACER_STYLE = Style.registerClass({
   height: 1 * 1.5 + 0.3 * 2 + 'em'
 })
 
 var Header = React.createClass({
+
+  mixins: [Style.Mixin],
 
   render: function () {
     return (

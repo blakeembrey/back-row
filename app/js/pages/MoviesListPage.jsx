@@ -1,6 +1,6 @@
 var React = require('react')
 var ReactList = require('react-list')
-var style = require('free-style')
+var Style = require('react-free-style').fresh()
 var Spinner = require('../components/Spinner.jsx')
 var MovieItem = require('../components/MovieItem.jsx')
 var MoviesStore = require('../stores/MoviesStore')
@@ -15,7 +15,7 @@ function getStateFromStores() {
   }
 }
 
-var LIST_STYLE = style.registerClass({
+var LIST_STYLE = Style.registerClass({
   textAlign: 'left',
   flexWrap: 'wrap',
   flexDirection: 'row',
@@ -23,9 +23,14 @@ var LIST_STYLE = style.registerClass({
   padding: '0 0.5em'
 })
 
+var SPINNER_STYLE = Style.registerClass({
+  padding: '1em',
+  width: '10em'
+})
+
 var MoviesListPage = React.createClass({
 
-  mixins: [MovieListStore.Mixin],
+  mixins: [Style.Mixin, MovieListStore.Mixin],
 
   getInitialState: getStateFromStores,
 
@@ -52,7 +57,7 @@ var MoviesListPage = React.createClass({
   },
 
   renderLoading () {
-    return <Spinner fill={Colors.TURQUOISE} style={{ padding: '1em', width: '10em' }} />
+    return <Spinner fill={Colors.TURQUOISE} className={SPINNER_STYLE.className} />
   },
 
   render () {
