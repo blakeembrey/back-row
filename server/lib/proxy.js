@@ -1,6 +1,7 @@
 var url = require('url')
 var extend = require('extend')
-var request = require('request')
+var popsicle = require('popsicle')
+var status = require('popsicle-status')
 var lruCache = require('lru-cache')
 
 /**
@@ -40,7 +41,7 @@ function proxy (uris, opts) {
     function respond (response) {
       return response
         .then(function (opts) {
-          return res.status(opts.statusCode).set(opts.headers).send(opts.body)
+          return res.status(opts.status).set(opts.headers).send(opts.body)
         })
         .catch(function () {
           return res.status(502).end()
@@ -93,28 +94,24 @@ function handle (uris, path, req, index) {
 
   var uri = url.resolve(uris[0], path)
 
-  return new Promise(function (resolve, reject) {
-    var proxy = request({
-      uri: uri,
-      encoding: null,
-      method: req.method
-    }, function (err, res) {
-      if (err || res.statusCode >= 500) {
-        return resolve(handle(uris, path, req, index + 1))
-      }
-
-      // Never set cookies.
-      delete res.headers['set-cookie']
-      delete res.headers['set-cookie2']
-
-      return resolve({
-        body: res.body,
-        statusCode: res.statusCode,
-        headers: res.headers,
-        index: index
-      })
-    })
-
-    req.pipe(proxy)
+  return popsicle({
+    url: uri,
+    method: req.method,
+    headers: req.headers,
+    body: req,
+    raw: true,
+    encoding: 'buffer'
   })
+    .use(status(200, 499))
+    .then(function (res) {
+      return {
+        body: res.body,
+        status: res.status,
+        headers: res.get(),
+        index: index
+      }
+    })
+    .catch(function (err) {
+      return resolve(handle(uris, path, req, index + 1))
+    })
 }
