@@ -6,7 +6,7 @@ var MovieListStore = require('../stores/MovieListStore')
 var MovieListActions = {
 
   nextPage: function () {
-    var set = MovieListStore.getCount() / 50
+    var set = (MovieListStore.getCount() / 50) + 1
     var uri = '/v2/list_movies.json?sort_by=peers&limit=50&page=' + set
 
     return request.yts(uri)
