@@ -1,15 +1,13 @@
 var React = require('react')
-var Style = require('react-free-style').fresh()
+var Style = require('react-free-style')
 
-var CONTAINER_STYLE = Style.registerClass({
+var CONTAINER_STYLE = Style.registerStyle({
   minWidth: '100%',
   minHeight: 'calc(100vh - 34px)',
   position: 'relative'
 })
 
 var Header = React.createClass({
-
-  mixins: [Style.Mixin],
 
   render: function () {
     return (

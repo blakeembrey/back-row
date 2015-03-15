@@ -1,28 +1,30 @@
 var React = require('react')
-var Style = require('react-free-style').fresh()
+var Style = require('react-free-style')
 var svg = require('./Spinner.html')
 
-var SPINNER_STYLE = Style.registerClass({
+var SPINNER_STYLE = Style.registerStyle({
   margin: '0 auto'
 })
 
 var Spinner = React.createClass({
 
-  mixins: [Style.Mixin],
+  mixins: [Style.mixin()],
 
   propTypes: {
     fill: React.PropTypes.string
   },
 
-  render () {
-    var spinnerFillStyle = Style.registerClass({
+  componentWillMount () {
+    this.fillStyle = this.registerStyle({
       path: {
         fill: this.props.fill
       }
     })
+  },
 
+  render () {
     return <span
-      className={Style.join(this.props.className, spinnerFillStyle.className, SPINNER_STYLE.className)}
+      className={Style.join(this.props.className, this.fillStyle.className, SPINNER_STYLE.className)}
       dangerouslySetInnerHTML={{ __html: svg }} />
   }
 

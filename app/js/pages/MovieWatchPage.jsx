@@ -1,10 +1,10 @@
 var React = require('react')
-var Style = require('react-free-style').fresh()
+var Style = require('react-free-style')
 var Video = require('../components/Video.jsx')
 var MovieActions = require('../actions/MovieActions')
 var MoviesYtsStore = require('../stores/MoviesYtsStore')
 
-var CONTAINER_STYLE = Style.registerClass({
+var CONTAINER_STYLE = Style.registerStyle({
   flex: 1
 })
 
@@ -16,7 +16,7 @@ function getStateFromStores (imdbId) {
 
 var MovieWatchPage = React.createClass({
 
-  mixins: [Style.Mixin, MoviesYtsStore.Mixin],
+  mixins: [MoviesYtsStore.Mixin],
 
   propTypes: {
     movie: React.PropTypes.object.isRequired

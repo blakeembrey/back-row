@@ -1,26 +1,24 @@
 var React = require('react')
-var Style = require('react-free-style').fresh()
+var Style = require('react-free-style')
 var MoviePoster = require('../components/MoviePoster.jsx')
 var MovieDetails = require('../components/MovieDetails.jsx')
 var resizeImage = require('../utils/resize-image')
 
-var MOVIE_POSTER_STYLE = Style.registerClass({
+var MOVIE_POSTER_STYLE = Style.registerStyle({
   padding: '2em',
   height: 'calc(100vh - 34px)'
 })
 
-var MOVIE_CONTENT_STYLE = Style.registerClass({
+var MOVIE_CONTENT_STYLE = Style.registerStyle({
   flex: 1
 })
 
-var MOVIE_PAGE_STYLE = Style.registerClass({
+var MOVIE_PAGE_STYLE = Style.registerStyle({
   flex: 1,
   flexDirection: 'row'
 })
 
 var MovieDetailsPage = React.createClass({
-
-  mixins: [Style.Mixin],
 
   propTypes: {
     movie: React.PropTypes.object.isRequired

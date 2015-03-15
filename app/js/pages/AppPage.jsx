@@ -1,11 +1,11 @@
 var React = require('react')
-var Style = require('react-free-style').fresh()
+var Style = require('react-free-style')
 var RouteHandler = require('react-router').RouteHandler
 var Header = require('../components/Header.jsx')
 var Container = require('../components/Container.jsx')
 var Colors = require('../constants/Colors')
 
-var APP_STYLE = Style.registerClass({
+var APP_STYLE = Style.registerStyle({
   color: '#fff',
   minWidth: '100vw',
   minHeight: '100vh',
@@ -13,8 +13,6 @@ var APP_STYLE = Style.registerClass({
 })
 
 var App = React.createClass({
-
-  mixins: [Style.Mixin],
 
   render: function () {
     return (
@@ -24,6 +22,8 @@ var App = React.createClass({
         <Container>
           <RouteHandler />
         </Container>
+
+        <Style.Element />
       </div>
     )
   }

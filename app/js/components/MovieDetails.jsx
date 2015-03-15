@@ -1,17 +1,15 @@
 var React = require('react')
-var Style = require('react-free-style').fresh()
+var Style = require('react-free-style')
 var Link = require('react-router').Link
 var moment = require('moment')
 
-var MOVIE_TITLE_STYLE = Style.registerClass({
+var MOVIE_TITLE_STYLE = Style.registerStyle({
   margin: '1em 0',
   fontWeight: 'bold',
   fontSize: '2em'
 })
 
 var MovieDetails = React.createClass({
-
-  mixins: [Style.Mixin],
 
   propTypes: {
     movie: React.PropTypes.object.isRequired

@@ -1,20 +1,18 @@
 var React = require('react')
-var Style = require('react-free-style').fresh()
+var Style = require('react-free-style')
 var Colors = require('../constants/Colors')
 
-var POSTER_STYLE = Style.registerClass({
+var POSTER_STYLE = Style.registerStyle({
   height: '100%',
   flexShrink: 0
 })
 
-var IMAGE_STYLE = Style.registerClass({
+var IMAGE_STYLE = Style.registerStyle({
   height: '100%',
   borderRadius: 6
 })
 
 var MoviePoster = React.createClass({
-
-  mixins: [Style.Mixin],
 
   propTypes: {
     src: React.PropTypes.string.isRequired
