@@ -15,7 +15,9 @@
       [
         "stringify",
         [
-          ".html"
+          ".html",
+          ".css",
+          ".svg"
         ]
       ],
       "babelify"
