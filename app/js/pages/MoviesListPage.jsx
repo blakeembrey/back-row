@@ -16,16 +16,29 @@ function getStateFromStores() {
 }
 
 var LIST_STYLE = Style.registerStyle({
-  textAlign: 'left',
   flexWrap: 'wrap',
   flexDirection: 'row',
   justifyContent: 'space-between',
   padding: '0 0.5em'
 })
 
+var LIST_CONTAINER_STYLE = Style.registerStyle({
+  flex: 1
+})
+
 var SPINNER_STYLE = Style.registerStyle({
   padding: '1em',
-  width: '10em'
+  width: '10em',
+  flex: 1,
+  justifyContent: 'center'
+})
+
+var MovieListContainer = React.createClass({
+
+  render () {
+    return <div className={LIST_CONTAINER_STYLE.className}>{this.props.children}</div>
+  }
+
 })
 
 var MoviesListPage = React.createClass({
@@ -72,6 +85,7 @@ var MoviesListPage = React.createClass({
         items={movies}
         fetch={this.fetch}
         uniform={true}
+        component={MovieListContainer}
         renderItem={this.renderItem}
         renderItems={this.renderItems}
         renderLoading={this.renderLoading}
