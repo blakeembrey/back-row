@@ -1,5 +1,5 @@
 var React = require('react')
-var Style = require('react-free-style')
+var Style = require('react-free-style').create()
 var MoviePoster = require('../components/MoviePoster.jsx')
 var MovieDetails = require('../components/MovieDetails.jsx')
 var resizeImage = require('../utils/resize-image')
@@ -20,11 +20,13 @@ var MOVIE_PAGE_STYLE = Style.registerStyle({
 
 var MovieDetailsPage = React.createClass({
 
+  mixins: [Style.Mixin],
+
   propTypes: {
     movie: React.PropTypes.object.isRequired
   },
 
-  render: function () {
+  render () {
     var movie = this.props.movie
     var coverImage = resizeImage(movie.coverImage, window.innerWidth)
 

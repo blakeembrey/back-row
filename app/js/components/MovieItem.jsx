@@ -1,5 +1,5 @@
 var React = require('react')
-var Style = require('react-free-style')
+var Style = require('react-free-style').create()
 var Link = require('react-router').Link
 var resizeImage = require('../utils/resize-image')
 var Colors = require('../constants/Colors')
@@ -48,6 +48,8 @@ var ITEM_STYLE = Style.registerStyle({
 })
 
 var MovieItem = React.createClass({
+
+  mixins: [Style.Mixin],
 
   propTypes: {
     movie: React.PropTypes.object.isRequired

@@ -1,5 +1,5 @@
 var React = require('react')
-var Style = require('react-free-style')
+var Style = require('react-free-style').create()
 var Link = require('react-router').Link
 var Colors = require('../constants/Colors')
 
@@ -29,6 +29,8 @@ var SPACER_STYLE = Style.registerStyle({
 })
 
 var Header = React.createClass({
+
+  mixins: [Style.Mixin],
 
   render: function () {
     return (

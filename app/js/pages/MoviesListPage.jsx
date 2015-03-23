@@ -1,6 +1,6 @@
 var React = require('react')
 var ReactList = require('react-list')
-var Style = require('react-free-style')
+var Style = require('react-free-style').create()
 var Spinner = require('../components/Spinner.jsx')
 var MovieItem = require('../components/MovieItem.jsx')
 var MoviesStore = require('../stores/MoviesStore')
@@ -43,7 +43,7 @@ var MovieListContainer = React.createClass({
 
 var MoviesListPage = React.createClass({
 
-  mixins: [MovieListStore.Mixin],
+  mixins: [Style.Mixin, MovieListStore.Mixin],
 
   getInitialState: getStateFromStores,
 

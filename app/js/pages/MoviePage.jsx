@@ -1,7 +1,6 @@
 var React = require('react')
-var State = require('react-router').State
 var RouteHandler = require('react-router').RouteHandler
-var Style = require('react-free-style')
+var Style = require('react-free-style').create()
 var MoviesStore = require('../stores/MoviesStore')
 var PageActions = require('../actions/PageActions')
 var MovieActions = require('../actions/MovieActions')
@@ -31,18 +30,22 @@ var BACKGROUND_STYLE = Style.registerStyle({
 
 var MoviePage = React.createClass({
 
-  mixins: [State, MoviesStore.Mixin],
+  mixins: [Style.Mixin, MoviesStore.Mixin],
+
+  contextTypes: {
+    router: React.PropTypes.func.isRequired
+  },
 
   getInitialState: function () {
-    return getStateFromStores(this.getParams().imdbId)
+    return getStateFromStores(this.context.router.getCurrentParams().imdbId)
   },
 
   onChange: function () {
-    this.setState(getStateFromStores(this.getParams().imdbId))
+    this.setState(getStateFromStores(this.context.router.getCurrentParams().imdbId))
   },
 
   componentWillMount: function () {
-    MovieActions.getMovie(this.getParams().imdbId)
+    MovieActions.getMovie(this.context.router.getCurrentParams().imdbId)
   },
 
   render: function () {

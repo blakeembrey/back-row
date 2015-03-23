@@ -1,5 +1,5 @@
 var React = require('react')
-var Style = require('react-free-style')
+var Style = require('react-free-style').create()
 var videojs = require('video.js')
 
 var VIDEO_WRAPPER_STYLE = Style.registerStyle({
@@ -18,6 +18,8 @@ var VIDEO_WRAPPER_STYLE = Style.registerStyle({
 })
 
 var Video = React.createClass({
+
+  mixins: [Style.Mixin],
 
   propTypes: {
     poster: React.PropTypes.string,

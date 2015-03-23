@@ -1,5 +1,5 @@
 var React = require('react')
-var Style = require('react-free-style')
+var Style = require('react-free-style').create()
 var svg = require('./Spinner.svg')
 
 var SPINNER_STYLE = Style.registerStyle({
@@ -8,7 +8,7 @@ var SPINNER_STYLE = Style.registerStyle({
 
 var Spinner = React.createClass({
 
-  mixins: [Style.mixin()],
+  mixins: [Style.Mixin],
 
   propTypes: {
     fill: React.PropTypes.string
