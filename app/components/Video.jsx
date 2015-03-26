@@ -26,7 +26,7 @@ var Video = React.createClass({
     src: React.PropTypes.string.isRequired
   },
 
-  componentDidMount: function () {
+  componentDidMount () {
     var target = this.refs.target.getDOMNode()
     var video = document.createElement('video')
 
@@ -43,7 +43,7 @@ var Video = React.createClass({
     })
   },
 
-  render: function () {
+  render () {
     return (
       <div ref="target" className={VIDEO_WRAPPER_STYLE.className} />
     )

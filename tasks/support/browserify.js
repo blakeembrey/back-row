@@ -15,7 +15,7 @@ var envify = require('envify/custom')
  */
 module.exports = function (watch) {
   var build = browserify({
-    entries: ['./app/js/main.js'],
+    entries: ['./app/main.js'],
     debug: true,
     // Required for watchify.
     cache: {},

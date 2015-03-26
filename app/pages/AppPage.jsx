@@ -16,7 +16,7 @@ var App = React.createClass({
 
   mixins: [Style.Mixin],
 
-  render: function () {
+  render () {
     return (
       <div className={APP_STYLE.className}>
         <Header />

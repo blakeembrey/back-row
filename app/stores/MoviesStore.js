@@ -7,7 +7,7 @@ var _movies = {}
 
 var MovieStore = new Store({
 
-  get: function (imdbId) {
+  get (imdbId) {
     return _movies[imdbId]
   }
 

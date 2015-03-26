@@ -11,7 +11,7 @@ var Header = React.createClass({
 
   mixins: [Style.Mixin],
 
-  render: function () {
+  render () {
     return (
       <div className={CONTAINER_STYLE.className}>
         {this.props.children}

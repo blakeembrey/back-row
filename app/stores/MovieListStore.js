@@ -9,19 +9,19 @@ var _movieList = []
 
 var MovieListStore = new Store({
 
-  getList: function () {
+  getList () {
     return _movieList
   },
 
-  getCount: function () {
+  getCount () {
     return _count
   },
 
-  getTotal: function () {
+  getTotal () {
     return _total
   },
 
-  hasMore: function () {
+  hasMore () {
     return _count < _total
   }
 

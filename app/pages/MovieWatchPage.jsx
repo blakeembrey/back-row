@@ -22,19 +22,19 @@ var MovieWatchPage = React.createClass({
     movie: React.PropTypes.object.isRequired
   },
 
-  getInitialState: function () {
+  getInitialState () {
     return getStateFromStores(this.props.movie.imdbId)
   },
 
-  onChange: function () {
+  onChange () {
     this.setState(getStateFromStores(this.props.movie.imdbId))
   },
 
-  componentWillMount: function () {
+  componentWillMount () {
     MovieActions.getYtsMovie(this.props.movie.imdbId)
   },
 
-  render: function () {
+  render () {
     var movie = this.props.movie
     var ytsMovie = this.state.ytsMovie
 

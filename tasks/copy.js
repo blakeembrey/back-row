@@ -15,7 +15,7 @@ gulp.task('copy:normalize', ['clean:vendor'], function () {
 })
 
 gulp.task('copy:assets', ['clean:assets'], function () {
-  return gulp.src('app/index.html')
+  return gulp.src('assets/**/*')
     .pipe(gulp.dest('build/'))
     .pipe(livereload())
 })

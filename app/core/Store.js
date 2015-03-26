@@ -17,11 +17,11 @@ class Store extends EventEmitter {
     extend(this, methods)
 
     this.Mixin = {
-      componentWillMount: function () {
+      componentWillMount () {
         self.addChangeListener(this.onChange)
       },
 
-      componentWillUnmount: function () {
+      componentWillUnmount () {
         self.removeChangeListener(this.onChange)
       }
     }

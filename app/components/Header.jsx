@@ -32,7 +32,7 @@ var Header = React.createClass({
 
   mixins: [Style.Mixin],
 
-  render: function () {
+  render () {
     return (
       <div>
         <header className={HEADER_STYLE.className}>

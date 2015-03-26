@@ -55,11 +55,11 @@ var MovieItem = React.createClass({
     movie: React.PropTypes.object.isRequired
   },
 
-  render: function () {
+  render () {
     var movie = this.props.movie
 
     var backgroundStyle = {
-      backgroundImage: Style.url(resizeImage(movie.coverImage, 134))
+      backgroundImage: Style.url(resizeImage(this.props.movie.coverImage, 134))
     }
 
     return (

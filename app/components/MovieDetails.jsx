@@ -17,7 +17,7 @@ var MovieDetails = React.createClass({
     movie: React.PropTypes.object.isRequired
   },
 
-  render: function () {
+  render () {
     var movie = this.props.movie
 
     return (

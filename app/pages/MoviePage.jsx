@@ -36,19 +36,19 @@ var MoviePage = React.createClass({
     router: React.PropTypes.func.isRequired
   },
 
-  getInitialState: function () {
+  getInitialState () {
     return getStateFromStores(this.context.router.getCurrentParams().imdbId)
   },
 
-  onChange: function () {
+  onChange () {
     this.setState(getStateFromStores(this.context.router.getCurrentParams().imdbId))
   },
 
-  componentWillMount: function () {
+  componentWillMount () {
     MovieActions.getMovie(this.context.router.getCurrentParams().imdbId)
   },
 
-  render: function () {
+  render () {
     var movie = this.state.movie
 
     PageActions.setTitle(movie ? movie.title : 'Loading...')
