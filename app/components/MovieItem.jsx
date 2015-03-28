@@ -43,7 +43,7 @@ var ITEM_STYLE = Style.registerStyle({
   },
 
   ['&:hover ' + BACKGROUND_STYLE.selector]: {
-    opacity: 0.6
+    opacity: 0.5
   }
 })
 

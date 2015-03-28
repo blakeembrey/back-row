@@ -28,13 +28,9 @@ module.exports = function (hot) {
       ]
     },
     plugins: [
-      new webpack.DefinePlugin({
-        'process.env': {
-          NODE_ENV: process.env.NODE_ENV,
-          TRAKT_TV_CLIENT_ID: process.env.TRAKT_TV_CLIENT_ID,
-          TRAKT_TV_CLIENT_SECRET: process.env.TRAKT_TV_CLIENT_SECRET
-        }
-      }),
+      new webpack.EnvironmentPlugin([
+        'NODE_ENV', 'TRAKT_TV_CLIENT_ID', 'TRAKT_TV_CLIENT_SECRET'
+      ]),
       hot ? new webpack.HotModuleReplacementPlugin() : noop,
       PRODUCTION ? new webpack.optimize.DedupePlugin() : noop,
       PRODUCTION ? noop : new webpack.optimize.UglifyJsPlugin({

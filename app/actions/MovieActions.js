@@ -9,11 +9,7 @@ var MovieActions = {
   getMovie (imdbId) {
     var movie = MoviesStore.get(imdbId)
 
-    if (movie) {
-      return Promise.resolve(movie)
-    }
-
-    var uri = '/movie/summary/{TRAKT_TV_API_KEY}/' + imdbId
+    var uri = '/movie/summary/{TRAKT_TV_CLIENT_ID}/' + imdbId
 
     return request.trakt(uri)
       .then(function (res) {
@@ -26,10 +22,6 @@ var MovieActions = {
 
   getYtsMovie (imdbId) {
     var movie = MoviesYtsStore.get(imdbId)
-
-    if (movie) {
-      return Promise.resolve(movie)
-    }
 
     return request.yts('/v2/list_movies.json?query_term=' + imdbId)
       .then(function (res) {

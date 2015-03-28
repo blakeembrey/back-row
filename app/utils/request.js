@@ -26,6 +26,10 @@ function requestYts (opts) {
 
 function requestTraktTv (opts) {
   return request(opts)
+    .use(function (req) {
+      req.set('trakt-api-version', '2')
+      req.set('trakt-api-key', process.env.TRAKT_TV_CLIENT_ID)
+    })
     .use(prefix('/proxy/trakt'))
     .use(status())
     .after(function (res) {

@@ -5,12 +5,13 @@ var MovieDetails = require('../components/MovieDetails.jsx')
 var resizeImage = require('../utils/resize-image')
 
 var MOVIE_POSTER_STYLE = Style.registerStyle({
-  padding: '2em',
+  padding: '1em',
   height: 'calc(100vh - 34px)'
 })
 
-var MOVIE_CONTENT_STYLE = Style.registerStyle({
-  flex: 1
+var MOVIE_DETAILS_STYLE = Style.registerStyle({
+  flex: 1,
+  padding: '1em'
 })
 
 var MOVIE_PAGE_STYLE = Style.registerStyle({
@@ -34,7 +35,7 @@ var MovieDetailsPage = React.createClass({
       <div className={MOVIE_PAGE_STYLE.className}>
         <MoviePoster src={coverImage} className={MOVIE_POSTER_STYLE.className} />
 
-        <MovieDetails movie={movie} className={MOVIE_CONTENT_STYLE.className} />
+        <MovieDetails movie={movie} className={MOVIE_DETAILS_STYLE.className} />
       </div>
     );
   }
