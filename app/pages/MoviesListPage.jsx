@@ -3,7 +3,7 @@ var ReactList = require('react-list')
 var Style = require('react-free-style').create()
 var Spinner = require('../components/Spinner.jsx')
 var MovieItem = require('../components/MovieItem.jsx')
-var MoviesStore = require('../stores/MoviesStore')
+var MovieStore = require('../stores/MovieStore')
 var MovieListStore = require('../stores/MovieListStore')
 var MovieListActions = require('../actions/MovieListActions')
 var PageActions = require('../actions/PageActions')
@@ -75,7 +75,7 @@ var MoviesListPage = React.createClass({
 
   render () {
     var movies = this.state.movieList
-      .map(id => MoviesStore.get(id))
+      .map(id => MovieStore.get(id))
       .filter(movie => !!movie)
 
     PageActions.setTitle('Movies')

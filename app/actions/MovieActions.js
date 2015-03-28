@@ -1,14 +1,10 @@
 var request = require('../utils/request')
 var Dispatcher = require('../core/Dispatcher')
 var ActionTypes = require('../constants/ActionTypes')
-var MoviesStore = require('../stores/MoviesStore')
-var MoviesYtsStore = require('../stores/MoviesYtsStore')
 
 var MovieActions = {
 
   getMovie (imdbId) {
-    var movie = MoviesStore.get(imdbId)
-
     var uri = '/movie/summary/{TRAKT_TV_CLIENT_ID}/' + imdbId
 
     return request.trakt(uri)
@@ -20,19 +16,13 @@ var MovieActions = {
       })
   },
 
-  getYtsMovie (imdbId) {
-    var movie = MoviesYtsStore.get(imdbId)
-
+  getMovieTorrent (imdbId) {
     return request.yts('/v2/list_movies.json?query_term=' + imdbId)
       .then(function (res) {
-        var movie = res.body.data.movies[0]
-
         Dispatcher.handleServerAction({
           type: ActionTypes.LOAD_YTS_MOVIE,
-          body: movie
+          body: res.body.data.movies[0]
         })
-
-        return movie
       })
   }
 

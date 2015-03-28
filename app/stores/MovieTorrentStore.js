@@ -4,7 +4,7 @@ var ActionTypes = require('../constants/ActionTypes')
 
 var _movies = {}
 
-var MoviesYtsStore = new Store({
+var MoviesTorrentStore = new Store({
 
   get (imdbId) {
     return _movies[imdbId]
@@ -13,18 +13,18 @@ var MoviesYtsStore = new Store({
 })
 
 function addYtsMovie (movie) {
-  _movies[movie.imdb_code] = movie
+  _movies[movie.imdb_code] = movie.torrents
 }
 
-MoviesYtsStore.dispatcherToken = Dispatcher.register(function (payload) {
+MoviesTorrentStore.dispatcherToken = Dispatcher.register(function (payload) {
   var action = payload.action
 
   switch (action.type) {
     case ActionTypes.LOAD_YTS_MOVIE:
       addYtsMovie(action.body)
-      MoviesYtsStore.emitChange()
+      MoviesTorrentStore.emitChange()
       break
   }
 })
 
-module.exports = MoviesYtsStore
+module.exports = MoviesTorrentStore

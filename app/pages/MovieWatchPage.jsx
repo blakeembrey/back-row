@@ -2,7 +2,7 @@ var React = require('react')
 var Style = require('react-free-style').create()
 var Video = require('../components/Video.jsx')
 var MovieActions = require('../actions/MovieActions')
-var MoviesYtsStore = require('../stores/MoviesYtsStore')
+var MovieTorrentStore = require('../stores/MovieTorrentStore')
 
 var CONTAINER_STYLE = Style.registerStyle({
   flex: 1
@@ -10,13 +10,13 @@ var CONTAINER_STYLE = Style.registerStyle({
 
 function getStateFromStores (imdbId) {
   return {
-    ytsMovie: MoviesYtsStore.get(imdbId)
+    torrents: MovieTorrentStore.get(imdbId)
   }
 }
 
 var MovieWatchPage = React.createClass({
 
-  mixins: [Style.Mixin, MoviesYtsStore.Mixin],
+  mixins: [Style.Mixin, MovieTorrentStore.Mixin],
 
   propTypes: {
     movie: React.PropTypes.object.isRequired
@@ -31,19 +31,19 @@ var MovieWatchPage = React.createClass({
   },
 
   componentWillMount () {
-    MovieActions.getYtsMovie(this.props.movie.imdbId)
+    MovieActions.getMovieTorrent(this.props.movie.imdbId)
   },
 
   render () {
     var movie = this.props.movie
-    var ytsMovie = this.state.ytsMovie
+    var torrents = this.state.torrents
 
     // TODO: Loading...
-    if (!ytsMovie) {
+    if (!torrents) {
       return <div />
     }
 
-    var videoSrc = '/torrent/stream?uri=' + encodeURIComponent(ytsMovie.torrents[0].url)
+    var videoSrc = '/torrent/stream?uri=' + encodeURIComponent(torrents[0].url)
 
     return (
       <div className={CONTAINER_STYLE.className}>
