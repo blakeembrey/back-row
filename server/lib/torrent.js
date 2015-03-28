@@ -182,6 +182,8 @@ function logError (err) {
     var file = join(TORRENT_PATH, hash)
     var torrent = JSON.parse(fs.readFileSync(file, 'utf8'))
 
+    console.log('Restarting torrent stream:', torrent.name)
+
     return createTorrent(torrent, logError)
   })
 })()
