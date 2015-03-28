@@ -1,14 +1,14 @@
 var rimraf = require('rimraf')
 var gulp = require('gulp')
 
-gulp.task('clean:vendor', function (done) {
-  rimraf('build/vendor', done)
+gulp.task('clean:vendor', function () {
+  rimraf.sync('build/vendor')
 })
 
-gulp.task('clean:assets', function (done) {
-  rimraf('build/index.html', done)
+gulp.task('clean:assets', function () {
+  rimraf.sync('build/index.html')
 })
 
-gulp.task('clean', function (done) {
-  rimraf('build', done)
+gulp.task('clean', function () {
+  rimraf.sync('build')
 })

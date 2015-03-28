@@ -24,10 +24,13 @@ git clone https://github.com/blakeembrey/back-row.git
 cd back-row && npm install
 
 # Run development server
-gulp watch
+gulp server
 
 # Build the output directory
 gulp build
+
+# Start application
+npm start
 ```
 
 ## License

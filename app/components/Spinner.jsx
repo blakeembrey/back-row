@@ -1,6 +1,6 @@
 var React = require('react')
 var Style = require('react-free-style').create()
-var svg = require('./Spinner.svg')
+var svg = require('raw!./Spinner.svg')
 
 var SPINNER_STYLE = Style.registerStyle({
   margin: '0 auto'
