@@ -33,11 +33,11 @@ module.exports = function (hot) {
       ]),
       hot ? new webpack.HotModuleReplacementPlugin() : noop,
       PRODUCTION ? new webpack.optimize.DedupePlugin() : noop,
-      PRODUCTION ? noop : new webpack.optimize.UglifyJsPlugin({
+      PRODUCTION ? new webpack.optimize.UglifyJsPlugin({
         compress: {
           warnings: false
         }
-      }),
+      }) : noop,
       new webpack.NoErrorsPlugin()
     ],
     debug: !PRODUCTION,
