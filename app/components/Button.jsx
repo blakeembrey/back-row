@@ -12,6 +12,8 @@ var BUTTON_STYLE = Style.registerStyle({
   backgroundColor: Colors.GREEN_SEA,
   border: '1px solid transparent',
   transition: 'border .25s linear, color .25s linear, background-color .25s linear',
+  display: 'block',
+  whiteSpace: 'nowrap',
 
   '&:hover': {
     backgroundColor: chroma(Colors.GREEN_SEA).brighter(4).hex()

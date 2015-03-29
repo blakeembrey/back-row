@@ -7,6 +7,7 @@ var resizeImage = require('../utils/resize-image')
 var MOVIE_PAGE_STYLE = Style.registerStyle({
   flex: '0 1 auto',
   flexDirection: 'column',
+  alignSelf: 'center',
 
   '@media (min-width: 680px)': {
     maxWidth: 980,
@@ -34,18 +35,18 @@ var MovieDetailsPage = React.createClass({
   mixins: [Style.Mixin],
 
   propTypes: {
-    movie: React.PropTypes.object.isRequired
+    movie: React.PropTypes.object.isRequired,
+    torrents: React.PropTypes.array.isRequired
   },
 
   render () {
-    var movie = this.props.movie
-    var coverImage = resizeImage(movie.coverImage, window.innerWidth)
+    var coverImage = resizeImage(this.props.movie.coverImage, window.innerWidth)
 
     return (
       <div className={MOVIE_PAGE_STYLE.className}>
         <MoviePoster src={coverImage} className={MOVIE_POSTER_STYLE.className} />
 
-        <MovieDetails movie={movie} className={MOVIE_DETAILS_STYLE.className} />
+        <MovieDetails {...this.props} className={MOVIE_DETAILS_STYLE.className} />
       </div>
     );
   }

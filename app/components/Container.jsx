@@ -4,7 +4,8 @@ var Style = require('react-free-style').create()
 var CONTAINER_STYLE = Style.registerStyle({
   minWidth: '100%',
   minHeight: 'calc(100vh - 34px)',
-  position: 'relative'
+  position: 'relative',
+  justifyContent: 'center'
 })
 
 var Header = React.createClass({

@@ -1,9 +1,12 @@
 var React = require('react')
 var Style = require('react-free-style').create()
 var svg = require('raw!./Spinner.svg')
+var Colors = require('../constants/Colors')
 
 var SPINNER_STYLE = Style.registerStyle({
-  margin: '0 auto'
+  margin: '0 auto',
+  padding: '1em',
+  width: '9em'
 })
 
 var Spinner = React.createClass({
@@ -17,7 +20,7 @@ var Spinner = React.createClass({
   componentWillMount () {
     this.fillStyle = this.registerStyle({
       path: {
-        fill: this.props.fill
+        fill: this.props.fill || Colors.TURQUOISE
       }
     })
   },

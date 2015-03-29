@@ -7,7 +7,6 @@ var MovieStore = require('../stores/MovieStore')
 var MovieListStore = require('../stores/MovieListStore')
 var MovieListActions = require('../actions/MovieListActions')
 var PageActions = require('../actions/PageActions')
-var Colors = require('../constants/Colors')
 
 function getStateFromStores() {
   return {
@@ -27,8 +26,6 @@ var LIST_CONTAINER_STYLE = Style.registerStyle({
 })
 
 var SPINNER_STYLE = Style.registerStyle({
-  padding: '1em',
-  width: '10em',
   flex: 1,
   justifyContent: 'center'
 })
@@ -70,7 +67,7 @@ var MoviesListPage = React.createClass({
   },
 
   renderLoading () {
-    return <Spinner fill={Colors.TURQUOISE} className={SPINNER_STYLE.className} />
+    return <Spinner className={SPINNER_STYLE.className} />
   },
 
   render () {

@@ -2,52 +2,38 @@ var React = require('react')
 var Style = require('react-free-style').create()
 var Video = require('../components/Video.jsx')
 var MovieActions = require('../actions/MovieActions')
-var MovieTorrentStore = require('../stores/MovieTorrentStore')
 
 var CONTAINER_STYLE = Style.registerStyle({
   flex: 1
 })
 
-function getStateFromStores (imdbId) {
-  return {
-    torrents: MovieTorrentStore.get(imdbId)
-  }
-}
+var TITLE_STYLE = Style.registerStyle({
+  fontSize: '2em',
+  margin: 0,
+  padding: '0.5em',
+  textAlign: 'center'
+})
 
 var MovieWatchPage = React.createClass({
 
-  mixins: [Style.Mixin, MovieTorrentStore.Mixin],
+  mixins: [Style.Mixin],
 
   propTypes: {
-    movie: React.PropTypes.object.isRequired
-  },
-
-  getInitialState () {
-    return getStateFromStores(this.props.movie.imdbId)
-  },
-
-  onChange () {
-    this.setState(getStateFromStores(this.props.movie.imdbId))
-  },
-
-  componentWillMount () {
-    MovieActions.getMovieTorrent(this.props.movie.imdbId)
+    movie: React.PropTypes.object.isRequired,
+    torrent: React.PropTypes.object.isRequired
   },
 
   render () {
     var movie = this.props.movie
-    var torrents = this.state.torrents
-
-    // TODO: Loading...
-    if (!torrents) {
-      return <div />
-    }
-
-    var videoSrc = '/torrent/stream?uri=' + encodeURIComponent(torrents[0].url)
+    var torrent = this.props.torrent
 
     return (
       <div className={CONTAINER_STYLE.className}>
-        <Video src={videoSrc} poster={movie.backgroundImage} />
+        <h2 className={TITLE_STYLE.className}>{movie.title} ({torrent.quality})</h2>
+
+        <Video
+          src={'/torrent/stream?uri=' + encodeURIComponent(torrent.url)}
+          poster={movie.backgroundImage} />
       </div>
     )
   }
