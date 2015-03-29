@@ -3,12 +3,18 @@ var Style = require('react-free-style').create()
 var Colors = require('../constants/Colors')
 
 var POSTER_STYLE = Style.registerStyle({
-  flexShrink: 0
+  alignItems: 'center',
+  justifyContent: 'center'
+})
+
+var CONTAINER_STYLE = Style.registerStyle({
+  height: '100%'
 })
 
 var IMAGE_STYLE = Style.registerStyle({
-  height: '100%',
-  borderRadius: 6
+  borderRadius: 3,
+  maxHeight: '100%',
+  maxWidth: '100%'
 })
 
 var MoviePoster = React.createClass({
@@ -22,7 +28,9 @@ var MoviePoster = React.createClass({
   render () {
     return (
       <div className={Style.join(this.props.className, POSTER_STYLE.className)}>
-        <img src={this.props.src} className={IMAGE_STYLE.className} />
+        <div className={CONTAINER_STYLE.className}>
+          <img src={this.props.src} className={IMAGE_STYLE.className} />
+        </div>
       </div>
     )
   }

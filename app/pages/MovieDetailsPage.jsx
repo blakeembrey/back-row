@@ -4,19 +4,32 @@ var MoviePoster = require('../components/MoviePoster.jsx')
 var MovieDetails = require('../components/MovieDetails.jsx')
 var resizeImage = require('../utils/resize-image')
 
+var MOVIE_PAGE_STYLE = Style.registerStyle({
+  flex: 1,
+  flexDirection: 'column',
+
+  '@media (min-width: 600px)': {
+    maxWidth: 980,
+    maxHeight: 500,
+    margin: '0 auto',
+    flexDirection: 'row'
+  }
+})
+
 var MOVIE_POSTER_STYLE = Style.registerStyle({
   padding: '1em',
-  height: 'calc(100vh - 34px)'
+  maxHeight: 280,
+  height: 'calc(100vh - 34px)',
+
+  '@media (min-width: 600px)': {
+    maxHeight: 500,
+    maxWidth: 350
+  }
 })
 
 var MOVIE_DETAILS_STYLE = Style.registerStyle({
   flex: 1,
   padding: '1em'
-})
-
-var MOVIE_PAGE_STYLE = Style.registerStyle({
-  flex: 1,
-  flexDirection: 'row'
 })
 
 var MovieDetailsPage = React.createClass({
