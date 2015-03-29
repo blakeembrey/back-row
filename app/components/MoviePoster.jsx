@@ -3,6 +3,7 @@ var Style = require('react-free-style').create()
 var Colors = require('../constants/Colors')
 
 var POSTER_STYLE = Style.registerStyle({
+  flex: '0 1 auto',
   alignItems: 'center',
   justifyContent: 'center'
 })

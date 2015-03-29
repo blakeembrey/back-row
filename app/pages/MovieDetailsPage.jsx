@@ -5,13 +5,11 @@ var MovieDetails = require('../components/MovieDetails.jsx')
 var resizeImage = require('../utils/resize-image')
 
 var MOVIE_PAGE_STYLE = Style.registerStyle({
-  flex: 1,
+  flex: '0 1 auto',
   flexDirection: 'column',
 
-  '@media (min-width: 600px)': {
+  '@media (min-width: 680px)': {
     maxWidth: 980,
-    maxHeight: 500,
-    margin: '0 auto',
     flexDirection: 'row'
   }
 })
@@ -21,9 +19,8 @@ var MOVIE_POSTER_STYLE = Style.registerStyle({
   maxHeight: 280,
   height: 'calc(100vh - 34px)',
 
-  '@media (min-width: 600px)': {
-    maxHeight: 500,
-    maxWidth: 350
+  '@media (min-width: 680px)': {
+    maxHeight: 500
   }
 })
 

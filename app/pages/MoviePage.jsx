@@ -14,7 +14,9 @@ function getStateFromStores (imdbId) {
 
 var CONTAINER_STYLE = Style.registerStyle({
   flex: 1,
-  backgroundColor: '#000'
+  backgroundColor: '#000',
+  justifyContent: 'center',
+  alignItems: 'center'
 })
 
 var BACKGROUND_STYLE = Style.registerStyle({

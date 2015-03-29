@@ -7,14 +7,14 @@ var Button = require('./Button.jsx')
 var Colors = require('../constants/Colors')
 
 var MOVIE_TITLE_STYLE = Style.registerStyle({
-  margin: '0 0 0.8em 0',
+  margin: '0 0 0.75em 0',
   fontWeight: 'bold',
   fontSize: '2.5em'
 })
 
 var MOVIE_META_STYLE = Style.registerStyle({
   flexDirection: 'row',
-  marginBottom: '0.8em'
+  marginBottom: '1.5em'
 })
 
 var MOVIE_META_ITEM_STYLE = Style.registerStyle({
@@ -28,7 +28,7 @@ var MOVIE_META_ITEM_STYLE = Style.registerStyle({
 
 var MOVIE_DESCRIPTION_STYLE = Style.registerStyle({
   flex: 1,
-  marginBottom: '0.8em',
+  marginBottom: '1.5em',
   lineHeight: 1.2
 })
 
