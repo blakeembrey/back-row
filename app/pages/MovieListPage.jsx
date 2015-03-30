@@ -22,11 +22,8 @@ var LIST_STYLE = Style.registerStyle({
 })
 
 var LIST_CONTAINER_STYLE = Style.registerStyle({
-  flex: 1
-})
-
-var SPINNER_STYLE = Style.registerStyle({
   flex: 1,
+  alignItems: 'center',
   justifyContent: 'center'
 })
 
@@ -38,7 +35,7 @@ var MovieListContainer = React.createClass({
 
 })
 
-var MoviesListPage = React.createClass({
+var MovieListPage = React.createClass({
 
   mixins: [Style.Mixin, MovieListStore.Mixin],
 
@@ -67,7 +64,7 @@ var MoviesListPage = React.createClass({
   },
 
   renderLoading () {
-    return <Spinner className={SPINNER_STYLE.className} />
+    return <Spinner />
   },
 
   render () {
@@ -97,4 +94,4 @@ var MoviesListPage = React.createClass({
 
 })
 
-module.exports = MoviesListPage
+module.exports = MovieListPage

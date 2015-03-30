@@ -35,11 +35,6 @@ var BACKGROUND_STYLE = Style.registerStyle({
   backgroundSize: 'cover',
   backgroundPosition: 'center'
 })
-
-var SPINNER_STYLE = Style.registerStyle({
-  justifyContent: 'center'
-})
-
 var MoviePage = React.createClass({
 
   mixins: [Style.Mixin, MovieStore.Mixin, MovieTorrentStore.Mixin],
@@ -70,7 +65,7 @@ var MoviePage = React.createClass({
     PageActions.setTitle(movie ? movie.title : 'Loading...')
 
     if (!movie || !torrents) {
-      return <Spinner className={SPINNER_STYLE.className} />
+      return <Spinner />
     }
 
     var backgroundStyle = {

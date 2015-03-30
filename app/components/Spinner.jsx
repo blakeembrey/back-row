@@ -6,7 +6,8 @@ var Colors = require('../constants/Colors')
 var SPINNER_STYLE = Style.registerStyle({
   margin: '0 auto',
   padding: '1em',
-  width: '9em'
+  width: '9em',
+  flex: '0 1 auto'
 })
 
 var Spinner = React.createClass({
