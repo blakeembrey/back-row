@@ -5,8 +5,16 @@ gulp.task('build', [
   'clean',
   'copy'
 ], function (done) {
-  return webpack().run(function (err, stats) {
-    console.log(stats.toString())
+  return webpack({
+    production: true
+  }).run(function (err, stats) {
+    if (!err) {
+      console.log(stats.toString({
+        colors: true,
+        hash: false,
+        chunks: false
+      }))
+    }
 
     return done(err)
   })

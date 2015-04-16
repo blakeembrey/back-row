@@ -1,16 +1,12 @@
 var join = require('path').join
 var webpack = require('webpack')
-var PORT = process.env.PORT || 3000
-var PRODUCTION = process.env.NODE_ENV === 'production'
 
-function noop () {}
+module.exports = function (options) {
+  var entry = join(__dirname, '../../app/main')
 
-module.exports = function (hot) {
-  var entry = join(__dirname, '../../app/main.js')
-
-  var CONFIG = {
-    entry: hot ? [
-      'webpack-dev-server/client?http://localhost:' + PORT,
+  var config = {
+    entry: !options.production ? [
+      'webpack-dev-server/client?http://localhost:' + options.devPort,
       'webpack/hot/dev-server'
     ].concat(entry) : entry,
     output: {
@@ -21,31 +17,42 @@ module.exports = function (hot) {
     module: {
       loaders: [
         {
-          test: /\.jsx?$/,
-          exclude: /node_modules/,
-          loader: hot ? 'react-hot!babel-loader' : 'babel-loader'
+          test: /\.ts$/,
+          loader: !options.production ? 'react-hot!typescript-simple-loader' : 'typescript-simple-loader'
         }
       ]
     },
     plugins: [
       new webpack.EnvironmentPlugin([
-        'NODE_ENV', 'TRAKT_TV_CLIENT_ID', 'TRAKT_TV_CLIENT_SECRET'
+        'TRAKT_TV_CLIENT_ID', 'TRAKT_TV_CLIENT_SECRET'
       ]),
-      hot ? new webpack.HotModuleReplacementPlugin() : noop,
-      PRODUCTION ? new webpack.optimize.DedupePlugin() : noop,
-      PRODUCTION ? new webpack.optimize.UglifyJsPlugin({
-        compress: {
-          warnings: false
-        }
-      }) : noop,
       new webpack.NoErrorsPlugin()
     ],
-    debug: !PRODUCTION,
-    devtool: PRODUCTION ? 'source-map' : 'eval',
+    debug: !options.production,
+    devtool: options.production ? 'source-map' : 'inline-source-map',
     resolve: {
-      extensions: ['', '.js', '.jsx', '.ts']
+      extensions: ['', '.ts', '.js', '.jsx']
     }
   }
 
-  return webpack(CONFIG)
+  // Minify the output in production.
+  if (options.production) {
+    config.plugins.push(
+      new webpack.optimize.DedupePlugin(),
+      new webpack.optimize.UglifyJsPlugin({
+        compress: {
+          warnings: false
+        }
+      })
+    )
+  } else {
+    config.plugins.push(
+      new webpack.HotModuleReplacementPlugin(),
+      new webpack.DefinePlugin({
+        __URL__: '\'http://localhost:' + process.env.PORT + '\''
+      })
+    )
+  }
+
+  return webpack(config)
 }

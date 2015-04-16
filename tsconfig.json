@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "declaration": false,
+    "noImplicitAny": true,
+    "removeComments": true,
+    "sourceMap": true,
+    "outDir": ".tmp"
+  },
+  "files": [
+    "app/main.ts",
+    "typings/tsd.d.ts"
+  ]
+}

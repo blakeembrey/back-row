@@ -21,9 +21,6 @@ gulp.task('copy:assets', function () {
     .pipe(gulp.dest('build/'))
 })
 
-gulp.task('copy', [
-  'copy:videojs',
-  'copy:normalize',
-  'copy:font-awesome',
-  'copy:assets'
-])
+gulp.task('copy:vendor', ['copy:videojs', 'copy:normalize', 'copy:font-awesome'])
+
+gulp.task('copy', ['copy:vendor', 'copy:assets'])

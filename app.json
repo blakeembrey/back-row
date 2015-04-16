@@ -3,5 +3,8 @@
   "description": "A media server for watching movies and shows in a browser, streamed directly from a server",
   "repository": "https://github.com/blakeembrey/back-row",
   "logo": "",
-  "keywords": ["movie", "stream"]
+  "keywords": [
+    "movie",
+    "stream"
+  ]
 }
