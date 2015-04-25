@@ -17,7 +17,7 @@ module.exports = proxy
  */
 function proxy (uris, opts) {
   opts = extend({
-    max: 200,
+    max: 400,
     maxAge: 1000 * 60 * 60 * 2,
     methods: ['get', 'head', 'options']
   }, opts)
