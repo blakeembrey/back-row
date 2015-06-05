@@ -1,5 +1,6 @@
 var io = module.exports = require('socket.io')()
 var lruCache = require('lru-cache')
+var debug = require('debug')('back-row:session')
 var Session = require('./lib/session')
 
 var session = io.of('/session')
@@ -51,7 +52,7 @@ session.on('connection', function (socket) {
   socket.on('create', function (options) {
     var session = new Session(options)
 
-    console.log('create session', session.id, socket.id)
+    debug('create session', session.id, socket.id)
 
     // Track the session id until everyone leaves.
     USERS.set(socket.id, session)
@@ -94,7 +95,7 @@ session.on('connection', function (socket) {
 
     USERS.set(socket.id, session)
 
-    console.log('join session', session.id, socket.id)
+    debug('join session', session.id, socket.id)
 
     session.join(socket)
   })
@@ -108,7 +109,7 @@ session.on('connection', function (socket) {
     if (session) {
       USERS.del(socket.id)
 
-      console.log('leave session', session.id, socket.id)
+      debug('leave session', session.id, socket.id)
 
       session.leave(socket)
     }

@@ -34,6 +34,7 @@
   "dependencies": {
     "chroma-js": "^0.7.2",
     "cors": "^2.5.3",
+    "debug": "^2.2.0",
     "del": "^1.1.1",
     "es6-promise": "^2.0.1",
     "express": "^4.10.1",

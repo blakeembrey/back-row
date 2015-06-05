@@ -1,4 +1,5 @@
 var uuid = require('uuid')
+var debug = require('debug')('back-row:session')
 
 /**
  * Expose the session constructor.
@@ -50,6 +51,8 @@ Session.prototype.emitPlayState = function (force) {
     this.sockets().forEach(function (socket) {
       var state = this.getState(socket)
 
+      debug('emit state', socket.id, state)
+
       socket.emit('state', this.id, state)
     }, this)
   }
@@ -88,6 +91,8 @@ Session.prototype.setState = function (socket, state) {
   var readyState = state.ready
   var playState = state.play
 
+  debug('set state', socket.id, state)
+
   // Only change the playback position on toggle.
   if (readyState === READY_STATE.TOGGLE) {
     // Force the user to stop if this is invalid.
@@ -112,7 +117,9 @@ Session.prototype.setState = function (socket, state) {
 Session.prototype.setOptions = function (socket, options) {
   this._options = options
 
-  this.emit('options', this.id, this.getOptions())
+  debug('set options', socket.id, options)
+
+  this.emit('options', this.id, options)
 }
 
 /**
