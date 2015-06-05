@@ -58,20 +58,27 @@ Session.prototype.emitPlayState = function (force) {
 }
 
 /**
- * Get the common status between users.
+ * Check if we have waiting sockets.
  */
-Session.prototype.getPlayState = function () {
+Session.prototype.hasWaiting = function () {
   var sockets = this.sockets()
 
   for (var i = 0; i < sockets.length; i++) {
     var socket = sockets[i]
 
     if (this.getReadyState(socket) === READY_STATE.WAITING) {
-      return false
+      return true
     }
   }
 
-  return this.playState
+  return false
+}
+
+/**
+ * Get the common status between users.
+ */
+Session.prototype.getPlayState = function () {
+  return this.hasWaiting() ? false : this.playState
 }
 
 /**
@@ -83,7 +90,12 @@ Session.prototype.setState = function (socket, state) {
 
   // Only change the playback position on toggle.
   if (readyState === READY_STATE.TOGGLE) {
-    this.playState = playState
+    // Force the user to stop if this is invalid.
+    if (this.hasWaiting()) {
+      socket.emit('state', this.id, this.getState(socket))
+    } else {
+      this.playState = playState
+    }
   }
 
   this.lastKnownTime = state.time
