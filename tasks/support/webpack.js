@@ -24,7 +24,7 @@ module.exports = function (options) {
     },
     plugins: [
       new webpack.EnvironmentPlugin([
-        'TRAKT_TV_CLIENT_ID', 'TRAKT_TV_CLIENT_SECRET'
+        'TRAKT_TV_CLIENT_ID', 'TRAKT_TV_CLIENT_SECRET', 'NODE_ENV'
       ]),
       new webpack.NoErrorsPlugin()
     ],
