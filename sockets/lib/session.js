@@ -15,7 +15,6 @@ var DEFAULT_PLAY_STATE = false
  * Store possible session states.
  */
 var READY_STATE = {
-  TOGGLE: 'toggle',
   READY: 'ready',
   WAITING: 'waiting',
   ENDED: 'ended',
@@ -35,9 +34,19 @@ function Session (options) {
   this.lastKnownTimestamp = Date.now()
 
   this._sockets = {}
-  this._socketsPlayState = {}
   this._socketsReadyState = {}
   this._options = options
+}
+
+/**
+ * Emit state to a socket instance.
+ */
+Session.prototype.emitState = function (socket) {
+  var state = this.getState(socket)
+
+  debug('emit state', socket.id, state)
+
+  socket.emit('state', this.id, state)
 }
 
 /**
@@ -53,11 +62,7 @@ Session.prototype.emitPlayState = function (currentSocket, force) {
         return
       }
 
-      var state = this.getState(socket)
-
-      debug('emit state', socket.id, state)
-
-      socket.emit('state', this.id, state)
+      this.emitState(socket)
     }, this)
   }
 
@@ -67,25 +72,19 @@ Session.prototype.emitPlayState = function (currentSocket, force) {
 /**
  * Check if we have waiting sockets.
  */
-Session.prototype.hasWaiting = function () {
-  var sockets = this.sockets()
-
-  for (var i = 0; i < sockets.length; i++) {
-    var socket = sockets[i]
-
-    if (this.getReadyState(socket) === READY_STATE.WAITING) {
-      return true
-    }
-  }
-
-  return false
+Session.prototype.waiting = function () {
+  return this.sockets()
+    .filter(function (socket) {
+      return this.getReadyState(socket) === READY_STATE.WAITING
+    }, this)
+    .length
 }
 
 /**
  * Get the common status between users.
  */
 Session.prototype.getPlayState = function () {
-  return this.hasWaiting() ? false : this.playState
+  return this.waiting() ? false : this.playState
 }
 
 /**
@@ -97,20 +96,23 @@ Session.prototype.setState = function (socket, state) {
 
   debug('set state', socket.id, state)
 
-  // Only change the playback position on toggle.
-  if (readyState === READY_STATE.TOGGLE) {
-    // Force the user to stop if this is invalid.
-    if (this.hasWaiting()) {
-      socket.emit('state', this.id, this.getState(socket))
-    } else {
-      this.playState = playState
-    }
-  }
+  // Update ready state before we emit anything.
+  this._socketsReadyState[socket.id] = readyState
 
   this.lastKnownTime = state.time
   this.lastKnownTimestamp = Date.now()
 
-  this._socketsReadyState[socket.id] = readyState
+  // Only change the playback position on toggle.
+  if (playState !== this.currentPlayState) {
+    // Force the user to stop if this is invalid.
+    if (this.waiting()) {
+      if (readyState !== READY_STATE.WAITING) {
+        this.emitState(socket)
+      }
+    } else {
+      this.playState = playState
+    }
+  }
 
   this.emitPlayState(socket, readyState === READY_STATE.SEEKING)
 }
@@ -144,7 +146,8 @@ Session.prototype.getState = function (socket) {
   return {
     play: this.getPlayState(),
     ready: this.getReadyState(socket),
-    time: this.getTime()
+    time: this.getTime(),
+    id: Date.now()
   }
 }
 
@@ -188,7 +191,7 @@ Session.prototype.join = function (socket) {
   this._sockets[socket.id] = socket
 
   // Set the socket state so other users will wait.
-  this.setState(socket, { ready: 'waiting', play: this.playState, time: time })
+  this.setState(socket, { ready: undefined, play: this.playState, time: time })
 
   // Emit a "joined" event for the client.
   socket.emit('joined', this.id, {

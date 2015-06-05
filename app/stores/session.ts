@@ -21,6 +21,7 @@ interface SessionStateOptions {
 }
 
 interface SessionStateState {
+  id: number
   time: number
   play: string
   ready: string
@@ -81,7 +82,13 @@ export default class SessionStore extends Store<SessionState> {
   }
 
   setSessionState (sessionId: string, state: SessionStateState) {
-    this.state.sessions[sessionId] = <Session> extend(this.state.sessions[sessionId], { state })
+    var currentSession = this.state.sessions[sessionId]
+
+    if (!currentSession || currentSession.state.id > state.id) {
+      return
+    }
+
+    this.state.sessions[sessionId] = <Session> extend(currentSession, { state })
 
     this.hasChanged()
   }

@@ -32,9 +32,8 @@ interface VideoProps {
 class Video extends React.Component<VideoProps, {}> {
 
   player: any
-  playState = true
-  readyState = 'ready'
-  toggledPlayState = false
+  readyState: string
+  playState = false
 
   emitChange (playState: boolean, readyState: string) {
     if (playState !== this.playState || readyState !== this.readyState) {
@@ -57,13 +56,17 @@ class Video extends React.Component<VideoProps, {}> {
   }
 
   setPlayState (playState: boolean) {
+    if (this.playState === playState) {
+      return
+    }
+
+    this.playState = playState
+
     if (playState) {
       this.player.play()
     } else {
       this.player.pause()
     }
-
-    this.playState = playState
   }
 
   setPlayerState (props: VideoProps) {
@@ -71,7 +74,7 @@ class Video extends React.Component<VideoProps, {}> {
     this.setPlayState(props.play)
   }
 
-  componentDidUpdate (props: VideoProps) {
+  componentDidUpdate () {
     this.setPlayerState(this.props)
   }
 
@@ -93,11 +96,11 @@ class Video extends React.Component<VideoProps, {}> {
     })
 
     player.on('play', () => {
-      this.emitChange(true, 'toggle')
+      this.emitChange(true, this.readyState)
     })
 
     player.on('pause', () => {
-      this.emitChange(false, 'toggle')
+      this.emitChange(false, this.readyState)
     })
 
     player.on('seeking', () => {
