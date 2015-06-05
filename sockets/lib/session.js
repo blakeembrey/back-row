@@ -43,12 +43,16 @@ function Session (options) {
 /**
  * Emit the current state to all sockets.
  */
-Session.prototype.emitPlayState = function (force) {
+Session.prototype.emitPlayState = function (currentSocket, force) {
   var playState = this.getPlayState()
 
   // Emit new play state to all sockets.
   if (force || playState !== this.currentPlayState) {
     this.sockets().forEach(function (socket) {
+      if (currentSocket.id === socket.id) {
+        return
+      }
+
       var state = this.getState(socket)
 
       debug('emit state', socket.id, state)
@@ -108,7 +112,7 @@ Session.prototype.setState = function (socket, state) {
 
   this._socketsReadyState[socket.id] = readyState
 
-  this.emitPlayState(readyState === READY_STATE.SEEKING)
+  this.emitPlayState(socket, readyState === READY_STATE.SEEKING)
 }
 
 /**
@@ -204,7 +208,7 @@ Session.prototype.leave = function (socket) {
     delete this._socketsReadyState[socket.id]
 
     // Update state when leaving on "ready" mode.
-    this.emitPlayState()
+    this.emitPlayState(socket)
 
     socket.emit('left', this.id)
 
