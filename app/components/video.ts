@@ -62,11 +62,6 @@ class Video extends React.Component<VideoProps, {}> {
     // Track play state.
     this.playState = playState
 
-    // Maybe?
-    if (this.readyState === 'waiting') {
-      return
-    }
-
     if (playState) {
       if (isPaused) {
         this.player.play()
