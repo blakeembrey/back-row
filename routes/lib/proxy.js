@@ -1,5 +1,5 @@
 var url = require('url')
-var extend = require('extend')
+var extend = require('xtend')
 var popsicle = require('popsicle')
 var status = require('popsicle-status')
 var lruCache = require('lru-cache')
