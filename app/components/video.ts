@@ -57,22 +57,13 @@ class Video extends React.Component<VideoProps, {}> {
   }
 
   setPlayState (playState: boolean) {
-    const isPaused = this.player.paused()
-
-    // Track play state.
-    this.playState = playState
-
     if (playState) {
-      if (isPaused) {
-        this.player.play()
-        this.toggledPlayState = true
-      }
+      this.player.play()
     } else {
-      if (!isPaused) {
-        this.player.pause()
-        this.toggledPlayState = true
-      }
+      this.player.pause()
     }
+
+    this.playState = playState
   }
 
   setPlayerState (props: VideoProps) {
@@ -102,19 +93,11 @@ class Video extends React.Component<VideoProps, {}> {
     })
 
     player.on('play', () => {
-      if (!this.toggledPlayState) {
-        this.emitChange(true, 'toggle')
-      }
-
-      this.toggledPlayState = false
+      this.emitChange(true, 'toggle')
     })
 
     player.on('pause', () => {
-      if (!this.toggledPlayState) {
-        this.emitChange(false, 'toggle')
-      }
-
-      this.toggledPlayState = false
+      this.emitChange(false, 'toggle')
     })
 
     player.on('seeking', () => {
