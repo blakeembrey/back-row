@@ -162,7 +162,7 @@ class MovieDetailsView extends React.Component<MovieDetailsProps, {}> {
           {
             className: MOVIE_META_ITEM_STYLE.className
           },
-          moment(movie.released).format('MMM YY')
+          moment(movie.released).format('MMM YYYY')
         ),
         movie.genres.length ? React.createElement(
           'span',
