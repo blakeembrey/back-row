@@ -101,6 +101,11 @@ class Video extends React.Component<VideoProps, VideoState> {
     this.setState({ time: this.props.time, play: this.props.play })
   }
 
+  componentWillUnmount () {
+    // Dispose of the video player when navigating away.
+    this.player.dispose()
+  }
+
   componentDidMount () {
     const target = (<any> this.refs).target.getDOMNode()
     const videoElement = document.createElement('video')
