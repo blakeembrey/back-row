@@ -1,4 +1,5 @@
 import io = require('socket.io-client')
+import extend = require('xtend')
 import { ActionCreators } from 'marty'
 import SessionConstants from '../constants/session'
 
@@ -20,11 +21,10 @@ class SessionActionCreators extends ActionCreators {
       // Connect to the server.
       connection.connect()
 
-      connection.once('connect', () => {
-        this.dispatch(SessionConstants.CREATE_CONNECTION, connection)
+      this.dispatch(SessionConstants.CREATE_CONNECTION, connection)
 
-        resolve()
-      })
+      // Resolve once it says we've connected.
+      connection.once('connect', resolve)
 
       connection.on('state', (sessionId: string, state: any) => {
         this.dispatch(SessionConstants.UPDATE_SESSION_STATE, sessionId, state)
@@ -95,7 +95,7 @@ class SessionActionCreators extends ActionCreators {
     return Promise.resolve(sessionId)
   }
 
-  updateState (sessionId: string, state: { play: boolean; waiting: number; ready: string; time: number }) {
+  updateState (sessionId: string, state: { play: boolean; ready: string; time: number }) {
     const { connection } = this.app.sessionStore.state
 
     this.dispatch(SessionConstants.UPDATE_SESSION_STATE_STARTING)
@@ -106,7 +106,11 @@ class SessionActionCreators extends ActionCreators {
 
     connection.emit('state', sessionId, state)
 
-    this.dispatch(SessionConstants.UPDATE_SESSION_STATE, sessionId, state)
+    // Update the session in the store synchronously. Set the source to the
+    // current connection and allow the store to handle the peers merging.
+    this.dispatch(SessionConstants.UPDATE_SESSION_STATE, sessionId, extend(state, {
+      source: connection.id
+    }))
 
     return Promise.resolve(state)
   }

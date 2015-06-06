@@ -7,7 +7,6 @@ const Style = create()
 const VIDEO_WRAPPER_STYLE = Style.registerStyle({
   flex: 1,
   WebkitFlex: 1,
-  padding: '2em',
   justifyContent: 'center',
   alignItems: 'center',
 
@@ -27,24 +26,29 @@ interface VideoProps {
   onChange: (play: boolean, ready: string, time: number) => any
   time?: number
   play?: boolean
+  className?: string
 }
 
 class Video extends React.Component<VideoProps, {}> {
 
   player: any
-  readyState = 'waiting'
+  readyState: string
+  time = 0
   playState = false
 
   emitChange (playState: boolean, readyState: string) {
+    const time = Math.max(0, this.player.currentTime() * 1000)
+    const changedTime = time !== this.time
     const changedPlayState = playState !== this.playState
     const changedReadyState = readyState !== this.readyState
 
     // Set the states before we trigger `onChange` to avoid looping.
+    this.time = time
     this.playState = playState
     this.readyState = readyState
 
-    if (changedPlayState || changedReadyState) {
-      this.props.onChange(playState, readyState, this.player.currentTime() * 1000)
+    if (changedPlayState || changedReadyState || changedTime) {
+      this.props.onChange(playState, readyState, time)
     }
   }
 
@@ -53,10 +57,10 @@ class Video extends React.Component<VideoProps, {}> {
       const seconds = time / 1000
       const currentTime = this.player.currentTime()
 
-      if (~~seconds !== ~~currentTime) {
-        // Avoid triggering `onChange` when triggering seek manually.
-        this.readyState = 'seeking'
+      this.time = time
 
+      // TODO: Figure this out better.
+      if (seconds !== currentTime) {
         this.player.currentTime(seconds)
       }
     }
@@ -111,7 +115,7 @@ class Video extends React.Component<VideoProps, {}> {
     })
 
     player.on('seeking', () => {
-      this.emitChange(this.playState, 'seeking')
+      this.emitChange(this.playState, this.readyState)
     })
 
     player.on('canplaythrough', () => {
@@ -130,7 +134,10 @@ class Video extends React.Component<VideoProps, {}> {
   }
 
   render () {
-    return React.createElement('div', { ref: 'target', className: VIDEO_WRAPPER_STYLE.className })
+    return React.createElement('div', {
+      ref: 'target',
+      className: Style.join(this.props.className, VIDEO_WRAPPER_STYLE.className)
+    })
   }
 
 }

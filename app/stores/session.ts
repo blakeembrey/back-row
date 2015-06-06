@@ -21,11 +21,13 @@ interface SessionStateOptions {
 }
 
 interface SessionStateState {
-  sort: number
   time: number
   play: boolean
   ready: string
   waiting: number
+  timestamp: number
+  from: string
+  peers: string[]
 }
 
 export default class SessionStore extends Store<SessionState> {
@@ -83,12 +85,14 @@ export default class SessionStore extends Store<SessionState> {
     this.hasChanged()
   }
 
-  setSessionState (sessionId: string, state: SessionStateState) {
-    var currentSession = this.state.sessions[sessionId]
+  setSessionState (sessionId: string, newState: SessionStateState) {
+    const currentSession = this.state.sessions[sessionId]
 
-    if (!currentSession || currentSession.state.sort > state.sort) {
+    if (!currentSession || currentSession.state.timestamp > newState.timestamp) {
       return
     }
+
+    const state = extend(currentSession.state, newState)
 
     this.state.sessions[sessionId] = <Session> extend(currentSession, { state })
 

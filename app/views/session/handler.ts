@@ -27,17 +27,11 @@ class SessionView extends React.Component<SessionProps, {}> {
 
   render () {
     const { app, session } = this.props
-    const { options, state, id } = session
-    const { time, play, waiting } = state
-    const { imdbId, quality } = options
 
     return React.createElement(Watch, {
-      imdbId,
-      quality,
-      time,
-      play,
+      session,
       onChange: (play: boolean, ready: string, time: number) => {
-        app.sessionActionCreators.updateState(session.id, { play, waiting, ready, time })
+        app.sessionActionCreators.updateState(session.id, { play, ready, time })
       }
     })
   }

@@ -1,5 +1,6 @@
 var uuid = require('uuid')
 var debug = require('debug')('back-row:session')
+var extend = require('xtend')
 
 /**
  * Expose the session constructor.
@@ -28,13 +29,13 @@ function Session (options) {
   this.id = uuid.v4()
 
   this.playState = DEFAULT_PLAY_STATE
+  this.sockets = {}
+  this.readyStates = {}
+  this.options = options
 
   this.lastKnownTime = 0
+  this.lastKnownSource = undefined
   this.lastKnownTimestamp = Date.now()
-
-  this._sockets = {}
-  this._socketsReadyState = {}
-  this._options = options
 }
 
 /**
@@ -51,34 +52,30 @@ Session.prototype.emitState = function (socket) {
 /**
  * Emit the current state to all sockets.
  */
-Session.prototype.emitPlayState = function (currentSocket, currentPlayState, force) {
-  var playState = this.getPlayState()
+Session.prototype.emitPlayState = function (currentSocket, currentPlayState) {
+  // Emit new play state to all available sockets.
+  this.all().forEach(function (socket) {
+    // Ensure the current play state is correct. This blocks clients from
+    // playing when it should be waiting.
+    if (currentSocket.id === socket.id && this.getPlayState(socket) === currentPlayState) {
+      return
+    }
 
-  // Emit new play state to all sockets.
-  if (force || playState !== this.previousPlayState) {
-    this.sockets().forEach(function (socket) {
-      // Ensure the current play state is correct. This blocks clients from
-      // playing when it should be waiting.
-      if (currentSocket.id === socket.id && playState === currentPlayState) {
-        return
-      }
-
-      this.emitState(socket)
-    }, this)
-  }
-
-  // Store for next emit.
-  this.previousPlayState = playState
+    this.emitState(socket)
+  }, this)
 }
 
 /**
  * Check if we have waiting sockets.
  */
 Session.prototype.getWaiting = function (currentSocket) {
-  return this.sockets()
+  return this.all()
     .filter(function (socket) {
+      const readyState = this.getReadyState(socket)
+
+      // Set as waiting when no ready state has been recieved.
       return socket !== currentSocket &&
-        this.getReadyState(socket) === READY_STATE.WAITING
+        (!readyState || readyState === READY_STATE.WAITING)
     }, this)
     .length
 }
@@ -94,31 +91,45 @@ Session.prototype.getPlayState = function (socket) {
  * Handle updates in the session state.
  */
 Session.prototype.setState = function (socket, state) {
-  var readyState = state.ready
-  var playState = state.play
-  var previousReadyState = this.getReadyState(socket)
+  // Track whether we need to update other clients on the change.
+  var updated = false
 
   debug('set state', socket.id, state)
 
   // Update ready state before we emit anything.
-  this._socketsReadyState[socket.id] = readyState
+  if (this.readyStates[socket.id] !== state.ready) {
+    this.readyStates[socket.id] = state.ready
 
-  // Update the play state when not waiting.
-  if (!state.waiting) {
-    this.playState = playState
+    updated = true
   }
 
-  this.lastKnownTime = state.time
-  this.lastKnownTimestamp = Date.now()
+  // Update the play state when not waiting.
+  if (!this.getWaiting(socket) && this.playState !== state.play) {
+    this.playState = state.play
+    this.lastKnownSource = socket.id
 
-  this.emitPlayState(socket, playState, readyState === READY_STATE.SEEKING)
+    updated = true
+  }
+
+  // Update the timestamp when changing.
+  if (state.time !== this.getTime()) {
+    this.lastKnownTime = state.time
+    this.lastKnownSource = socket.id
+    this.lastKnownTimestamp = Date.now()
+
+    updated = true
+  }
+
+  if (updated) {
+    this.emitPlayState(socket, state.play)
+  }
 }
 
 /**
  * Update session options.
  */
 Session.prototype.setOptions = function (socket, options) {
-  this._options = options
+  this.options = options
 
   debug('set options', socket.id, options)
 
@@ -128,8 +139,8 @@ Session.prototype.setOptions = function (socket, options) {
 /**
  * Calculate the current time.
  */
-Session.prototype.getTime = function (socket) {
-  if (this.getPlayState(socket) !== true) {
+Session.prototype.getTime = function () {
+  if (this.getPlayState() !== true) {
     return this.lastKnownTime
   }
 
@@ -139,13 +150,15 @@ Session.prototype.getTime = function (socket) {
 /**
  * Get the current session playback state.
  */
-Session.prototype.getState = function (socket) {
+Session.prototype.getState = function (currentSocket) {
   return {
-    play: this.getPlayState(socket),
-    ready: this.getReadyState(socket),
-    time: this.getTime(socket),
-    waiting: this.getWaiting(socket),
-    sort: Date.now()
+    play: this.getPlayState(currentSocket),
+    ready: this.getReadyState(currentSocket),
+    time: this.getTime(),
+    waiting: this.getWaiting(currentSocket),
+    timestamp: Date.now(),
+    peers: Object.keys(this.sockets).filter(function (id) { return id !== currentSocket.id }),
+    source: this.lastKnownSource
   }
 }
 
@@ -153,30 +166,23 @@ Session.prototype.getState = function (socket) {
  * Get the current session options.
  */
 Session.prototype.getOptions = function () {
-  return this._options
+  return this.options
 }
 
 /**
  * Return an array of user sockets.
  */
-Session.prototype.sockets = function () {
-  return Object.keys(this._sockets).map(function (key) {
-    return this._sockets[key]
+Session.prototype.all = function () {
+  return Object.keys(this.sockets).map(function (key) {
+    return this.sockets[key]
   }, this)
-}
-
-/**
- * Get a client by id.
- */
-Session.prototype.socket = function (id) {
-  return this._sockets[id]
 }
 
 /**
  * Get data by id.
  */
 Session.prototype.getReadyState = function (socket) {
-  return this._socketsReadyState[socket.id]
+  return this.readyStates[socket.id]
 }
 
 /**
@@ -186,19 +192,18 @@ Session.prototype.join = function (socket) {
   var time = this.getTime()
 
   // Add the socket after getting the current time.
-  this._sockets[socket.id] = socket
+  this.sockets[socket.id] = socket
 
   // Set the initial socket state to pause other clients.
   this.setState(socket, {
     play: this.playState,
-    ready: 'waiting',
-    waiting: this.getWaiting(),
     time: time
   })
 
-  // Emit a "joined" event for the client.
+  // Emit a "joined" event for the client. Override the starting play state
+  // to ignore buffering clients and start buffering immediately (if playing).
   socket.emit('joined', this.id, {
-    state: this.getState(socket),
+    state: extend(this.getState(socket), { play: this.playState }),
     options: this.getOptions()
   })
 }
@@ -207,19 +212,20 @@ Session.prototype.join = function (socket) {
  * Remove a socket from the session.
  */
 Session.prototype.leave = function (socket) {
-  var socket = this._sockets[socket && socket.id]
+  var socket = this.sockets[socket && socket.id]
 
   if (socket) {
-    delete this._sockets[socket.id]
-    delete this._socketsReadyState[socket.id]
+    delete this.sockets[socket.id]
+    delete this.readyStates[socket.id]
 
     // Update state when leaving on "ready" mode.
     this.emitPlayState(socket)
 
-    // Pause the movie playback if no one is watching.
-    if (this.sockets().length === 0) {
+    // Reset playback if no one is watching.
+    if (this.all().length === 0) {
       this.playState = DEFAULT_PLAY_STATE
       this.lastKnownTime = this.getTime()
+      this.lastKnownSource = undefined
       this.lastKnownTimestamp = Date.now()
     }
   }
@@ -231,7 +237,7 @@ Session.prototype.leave = function (socket) {
 Session.prototype.emit = function () {
   var args = arguments
 
-  this.sockets().forEach(function (socket) {
+  this.all().forEach(function (socket) {
     socket.emit.apply(socket, args)
   })
 }
@@ -240,7 +246,7 @@ Session.prototype.emit = function () {
  * Kill the current session.
  */
 Session.prototype.destroy = function () {
-  this.sockets().forEach(function (socket) {
+  this.all().forEach(function (socket) {
     this.leave(socket)
   })
 }

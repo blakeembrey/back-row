@@ -32,7 +32,7 @@ var SESSIONS_CACHE_OPTIONS = {
 var USERS_CACHE_OPTIONS = {
   max: 1000, // Concurrent users.
   dispose: function (id, session) {
-    session.leave(session.socket(id))
+    session.leave(session.sockets[id])
   }
 }
 
