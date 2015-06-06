@@ -26,14 +26,22 @@ interface VideoProps {
   onChange: (play: boolean, ready: string, time: number) => any
   time?: number
   play?: boolean
+  threshold?: number
   className?: string
+}
+
+/**
+ * Check if a value is within the target threshold.
+ */
+function within (value: number, lower: number, upper: number) {
+  return value > lower && value < upper
 }
 
 class Video extends React.Component<VideoProps, {}> {
 
   player: any
-  readyState: string
   time = 0
+  readyState = 'waiting'
   playState = false
 
   emitChange (playState: boolean, readyState: string) {
@@ -53,15 +61,15 @@ class Video extends React.Component<VideoProps, {}> {
   }
 
   setTime (time: number) {
-    if (time != null) {
-      const seconds = time / 1000
-      const currentTime = this.player.currentTime()
+    if (time != null && time !== this.time) {
+      const { threshold } = this.props
+      const currentTime = this.player.currentTime() * 1000
 
-      this.time = time
+      console.log(this.time, time, currentTime, threshold, within(time, currentTime - threshold, currentTime + threshold))
 
-      // TODO: Figure this out better.
-      if (seconds !== currentTime) {
-        this.player.currentTime(seconds)
+      if (!within(time, currentTime - threshold, currentTime + threshold)) {
+        this.time = time
+        this.player.currentTime(time / 1000)
       }
     }
   }

@@ -49,7 +49,7 @@ session.on('connection', function (socket) {
   /**
    * Create a new session room.
    */
-  socket.on('create', function (options) {
+  socket.on('create', function (options, cb) {
     var session = new Session(options)
 
     debug('create session', session.id, socket.id)
@@ -58,46 +58,52 @@ session.on('connection', function (socket) {
     USERS.set(socket.id, session)
     SESSIONS.set(session.id, session)
 
-    socket.emit('created', session.id)
-
-    session.join(socket)
+    return session.join(socket, cb)
   })
 
   /**
    * Trigger state updates.
    */
-  socket.on('state', function (sessionId, state) {
+  socket.on('state', function (sessionId, state, cb) {
     var session = SESSIONS.get(sessionId)
 
-    return session && session.setState(socket, state)
+    if (session) {
+      session.setState(socket, state)
+    }
+
+    return cb(true)
   })
 
   /**
    * Update user options.
    */
-  socket.on('options', function (sessionId, options) {
+  socket.on('options', function (sessionId, options, cb) {
     var session = SESSIONS.get(sessionId)
 
-    return session && session.setOptions(socket, options)
+    if (session) {
+      session.setOptions(socket, options)
+    }
+
+    return cb(true)
   })
 
   /**
    * Add a user to a session.
    */
-  socket.on('join', function (sessionId) {
+  socket.on('join', function (sessionId, cb) {
     var session = SESSIONS.get(sessionId)
 
     if (!session) {
-      socket.emit('joinFailed')
-
-      return
+      return cb(false)
     }
 
     USERS.set(socket.id, session)
 
     debug('join session', session.id, socket.id)
 
-    session.join(socket)
+    return session.join(socket, function (sessionId, data) {
+      return cb(true, data)
+    })
   })
 
   /**
@@ -120,4 +126,9 @@ session.on('connection', function (socket) {
    */
   socket.on('leave', leave)
   socket.on('disconnect', leave)
+
+  /**
+   * Handle client pings.
+   */
+  socket.on('ping', process.nextTick.bind(process))
 })

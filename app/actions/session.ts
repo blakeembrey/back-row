@@ -26,6 +26,22 @@ class SessionActionCreators extends ActionCreators {
       // Resolve once it says we've connected.
       connection.once('connect', resolve)
 
+      /**
+       * Keep track of the server latency.
+       */
+      const ping = () => {
+        const now = Date.now()
+
+        connection.emit('ping', () => {
+          this.dispatch(SessionConstants.UPDATE_LATENCY, Date.now() - now + 50)
+
+          setTimeout(ping, 5000)
+        })
+      }
+
+      // Start pinging.
+      ping()
+
       connection.on('state', (sessionId: string, state: any) => {
         this.dispatch(SessionConstants.UPDATE_SESSION_STATE, sessionId, state)
       })
@@ -38,14 +54,14 @@ class SessionActionCreators extends ActionCreators {
 
   create (options: SessionCreateOpts) {
     return new Promise((resolve: (value: string) => void) => {
+      const now = Date.now()
       const { connection } = this.app.sessionStore.state
 
       this.dispatch(SessionConstants.CREATE_SESSION_STARTING)
 
-      connection.emit('create', options)
-
-      connection.once('joined', (sessionId: string, data: any) => {
+      connection.emit('create', options, (sessionId: string, data: any) => {
         this.dispatch(SessionConstants.CREATE_SESSION, sessionId, data)
+        this.dispatch(SessionConstants.UPDATE_LATENCY, Date.now() - now)
 
         return resolve(sessionId)
       })
@@ -54,32 +70,21 @@ class SessionActionCreators extends ActionCreators {
 
   join (sessionId: string) {
     return new Promise((resolve: () => void) => {
+      const now = Date.now()
       const { connection } = this.app.sessionStore.state
-
-      // Handle successful session joins.
-      var joinedCallback = (sessionId: string, data: any) => {
-        this.dispatch(SessionConstants.JOIN_SESSION, sessionId, data)
-
-        connection.off('joinFailed', joinFailedCallback)
-
-        return resolve()
-      }
-
-      // Handle failures to join an active session.
-      var joinFailedCallback = () => {
-        this.dispatch(SessionConstants.JOIN_SESSION_FAILED, sessionId)
-
-        connection.off('joined', joinedCallback)
-
-        return resolve()
-      }
 
       this.dispatch(SessionConstants.JOIN_SESSION_STARTING, sessionId)
 
-      connection.emit('join', sessionId)
+      connection.emit('join', sessionId, (joined: boolean, data: any) => {
+        if (joined) {
+          this.dispatch(SessionConstants.JOIN_SESSION, sessionId, data)
+          this.dispatch(SessionConstants.UPDATE_LATENCY, Date.now() - now)
+        } else {
+          this.dispatch(SessionConstants.JOIN_SESSION_FAILED, sessionId)
+        }
 
-      connection.once('joined', joinedCallback)
-      connection.once('joinFailed', joinFailedCallback)
+        return resolve()
+      })
     })
   }
 
@@ -96,23 +101,29 @@ class SessionActionCreators extends ActionCreators {
   }
 
   updateState (sessionId: string, state: { play: boolean; ready: string; time: number }) {
-    const { connection } = this.app.sessionStore.state
+    return new Promise((resolve: () => void) => {
+      const { connection } = this.app.sessionStore.state
 
-    this.dispatch(SessionConstants.UPDATE_SESSION_STATE_STARTING)
+      this.dispatch(SessionConstants.UPDATE_SESSION_STATE_STARTING, sessionId, Date.now())
 
-    if (!connection) {
-      return
-    }
+      if (!connection) {
+        return resolve()
+      }
 
-    connection.emit('state', sessionId, state)
+      const now = Date.now()
 
-    // Update the session in the store synchronously. Set the source to the
-    // current connection and allow the store to handle the peers merging.
-    this.dispatch(SessionConstants.UPDATE_SESSION_STATE, sessionId, extend(state, {
-      source: connection.id
-    }))
+      connection.emit('state', sessionId, state, () => {
+        this.dispatch(SessionConstants.UPDATE_LATENCY, Date.now() - now)
 
-    return Promise.resolve(state)
+        resolve()
+      })
+
+      // Update the session in the store synchronously. Set the source to the
+      // current connection and allow the store to handle the peers merging.
+      this.dispatch(SessionConstants.UPDATE_SESSION_STATE, sessionId, extend(state, {
+        source: connection.id
+      }))
+    })
   }
 
 }

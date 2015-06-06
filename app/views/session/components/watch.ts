@@ -34,12 +34,13 @@ interface WatchProps {
     [quality: string]: Torrent
   }
   movie: Movie
+  latency: number
 }
 
 class WatchView extends React.Component<WatchProps, {}> {
 
   render () {
-    const { torrents, movie, onChange, session } = this.props
+    const { torrents, movie, onChange, session, latency } = this.props
     const { options, state } = session
     const { time, play, ready, waiting } = state
     const torrent = torrents[options.quality]
@@ -68,7 +69,8 @@ class WatchView extends React.Component<WatchProps, {}> {
           onChange: onChange,
           className: VIDEO_STYLE.className,
           time,
-          play
+          play,
+          threshold: latency
         }
       ),
       React.createElement(

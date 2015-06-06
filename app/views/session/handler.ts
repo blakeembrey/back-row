@@ -15,6 +15,7 @@ const FAILED_JOIN_STYLE = Style.registerStyle({
 interface SessionProps {
   app: Application
   session: Session
+  latency: number
 }
 
 class SessionView extends React.Component<SessionProps, {}> {
@@ -26,10 +27,11 @@ class SessionView extends React.Component<SessionProps, {}> {
   }
 
   render () {
-    const { app, session } = this.props
+    const { app, session, latency } = this.props
 
     return React.createElement(Watch, {
       session,
+      latency,
       onChange: (play: boolean, ready: string, time: number) => {
         app.sessionActionCreators.updateState(session.id, { play, ready, time })
       }
@@ -48,6 +50,9 @@ export default Style.component(createContainer(SessionView, {
       const { sessionId } = this.context.router.getCurrentParams()
 
       return this.app.sessionStore.getSession(sessionId)
+    },
+    latency () {
+      return this.app.sessionStore.getLatency()
     }
   },
   pending () {

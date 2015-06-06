@@ -99,6 +99,7 @@ Session.prototype.setState = function (socket, state) {
   // Update ready state before we emit anything.
   if (this.readyStates[socket.id] !== state.ready) {
     this.readyStates[socket.id] = state.ready
+    this.lastKnownSource = socket.id
 
     updated = true
   }
@@ -112,13 +113,8 @@ Session.prototype.setState = function (socket, state) {
   }
 
   // Update the timestamp when changing.
-  if (state.time !== this.getTime()) {
-    this.lastKnownTime = state.time
-    this.lastKnownSource = socket.id
-    this.lastKnownTimestamp = Date.now()
-
-    updated = true
-  }
+  this.lastKnownTime = state.time
+  this.lastKnownTimestamp = Date.now()
 
   if (updated) {
     this.emitPlayState(socket, state.play)
@@ -188,7 +184,7 @@ Session.prototype.getReadyState = function (socket) {
 /**
  * Join the session.
  */
-Session.prototype.join = function (socket) {
+Session.prototype.join = function (socket, cb) {
   var time = this.getTime()
 
   // Add the socket after getting the current time.
@@ -200,9 +196,8 @@ Session.prototype.join = function (socket) {
     time: time
   })
 
-  // Emit a "joined" event for the client. Override the starting play state
-  // to ignore buffering clients and start buffering immediately (if playing).
-  socket.emit('joined', this.id, {
+  // Send set up state back to the client.
+  cb(this.id, {
     state: extend(this.getState(socket), { play: this.playState }),
     options: this.getOptions()
   })
@@ -218,9 +213,6 @@ Session.prototype.leave = function (socket) {
     delete this.sockets[socket.id]
     delete this.readyStates[socket.id]
 
-    // Update state when leaving on "ready" mode.
-    this.emitPlayState(socket)
-
     // Reset playback if no one is watching.
     if (this.all().length === 0) {
       this.playState = DEFAULT_PLAY_STATE
@@ -228,6 +220,9 @@ Session.prototype.leave = function (socket) {
       this.lastKnownSource = undefined
       this.lastKnownTimestamp = Date.now()
     }
+
+    // Update state when leaving on "ready" mode.
+    this.emitPlayState(socket)
   }
 }
 
