@@ -52,11 +52,10 @@ Session.prototype.emitState = function (socket) {
  * Emit the current state to all sockets.
  */
 Session.prototype.emitPlayState = function (currentSocket, force) {
-  var waiting = !!this.getWaiting()
   var playState = this.getPlayState()
 
   // Emit new play state to all sockets.
-  if (force || playState !== this.previousPlayState || waiting !== this.previousWaiting) {
+  if (force || playState !== this.previousPlayState) {
     this.sockets().forEach(function (socket) {
       if (currentSocket.id === socket.id) {
         return
@@ -67,7 +66,6 @@ Session.prototype.emitPlayState = function (currentSocket, force) {
   }
 
   // Store for next emit.
-  this.previousWaiting = waiting
   this.previousPlayState = playState
 }
 
@@ -86,7 +84,7 @@ Session.prototype.getWaiting = function () {
  * Get the common status between users.
  */
 Session.prototype.getPlayState = function () {
-  return this.playState
+  return this.getWaiting() ? false : this.playState
 }
 
 /**
@@ -102,11 +100,7 @@ Session.prototype.setState = function (socket, state) {
   // Update ready state before we emit anything.
   this._socketsReadyState[socket.id] = readyState
 
-  // Update playback state.
-  if (readyState !== READY_STATE.WAITING) {
-    this.playState = playState
-  }
-
+  this.playState = playState
   this.lastKnownTime = state.time
   this.lastKnownTimestamp = Date.now()
 
