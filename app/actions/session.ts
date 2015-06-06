@@ -89,15 +89,17 @@ class SessionActionCreators extends ActionCreators {
   }
 
   leave (sessionId: string) {
-    const { connection } = this.app.sessionStore.state
+    return new Promise((resolve: () => void) => {
+      const { connection } = this.app.sessionStore.state
 
-    this.dispatch(SessionConstants.LEAVE_SESSION_STARTING)
+      this.dispatch(SessionConstants.LEAVE_SESSION_STARTING)
 
-    connection.disconnect()
+      connection.disconnect()
 
-    this.dispatch(SessionConstants.LEAVE_SESSION, sessionId)
+      this.dispatch(SessionConstants.LEAVE_SESSION, sessionId)
 
-    return Promise.resolve(sessionId)
+      connection.once('disconnect', resolve)
+    })
   }
 
   updateState (sessionId: string, state: { play: boolean; ready: string; time: number }) {
