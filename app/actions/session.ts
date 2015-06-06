@@ -17,19 +17,8 @@ class SessionActionCreators extends ActionCreators {
 
       const connection = io.connect(BASE_URL + '/session')
 
-      // Hack to support Mart.js dev tools.
-      ;(<any> connection).toJSON = function () {
-        return {
-          connected: this.connected,
-          disconnected: this.disconnected,
-          ids: this.ids,
-          nsp: this.nsp,
-          io: {
-            uri: this.io.uri,
-            readyState: this.io.readyState
-          }
-        }
-      }
+      // Connect to the server.
+      connection.connect()
 
       connection.once('connect', () => {
         this.dispatch(SessionConstants.CREATE_CONNECTION, connection)
@@ -95,25 +84,25 @@ class SessionActionCreators extends ActionCreators {
   }
 
   leave (sessionId: string) {
-    return new Promise((resolve: () => void) => {
-      const { connection } = this.app.sessionStore.state
+    const { connection } = this.app.sessionStore.state
 
-      this.dispatch(SessionConstants.LEAVE_SESSION_STARTING)
+    this.dispatch(SessionConstants.LEAVE_SESSION_STARTING)
 
-      connection.emit('leave', sessionId)
+    connection.disconnect()
 
-      connection.once('left', () => {
-        this.dispatch(SessionConstants.LEAVE_SESSION, sessionId)
+    this.dispatch(SessionConstants.LEAVE_SESSION, sessionId)
 
-        resolve()
-      })
-    })
+    return Promise.resolve(sessionId)
   }
 
   updateState (sessionId: string, state: { play: boolean; ready: string; time: number }) {
     const { connection } = this.app.sessionStore.state
 
     this.dispatch(SessionConstants.UPDATE_SESSION_STATE_STARTING)
+
+    if (!connection) {
+      return
+    }
 
     connection.emit('state', sessionId, state)
 
