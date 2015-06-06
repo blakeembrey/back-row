@@ -52,10 +52,11 @@ Session.prototype.emitState = function (socket) {
  * Emit the current state to all sockets.
  */
 Session.prototype.emitPlayState = function (currentSocket, force) {
+  var waiting = !!this.getWaiting()
   var playState = this.getPlayState()
 
   // Emit new play state to all sockets.
-  if (force || playState !== this.currentPlayState) {
+  if (force || playState !== this.previousPlayState || waiting !== this.previousWaiting) {
     this.sockets().forEach(function (socket) {
       if (currentSocket.id === socket.id) {
         return
@@ -65,13 +66,15 @@ Session.prototype.emitPlayState = function (currentSocket, force) {
     }, this)
   }
 
-  this.currentPlayState = playState
+  // Store for next emit.
+  this.previousWaiting = waiting
+  this.previousPlayState = playState
 }
 
 /**
  * Check if we have waiting sockets.
  */
-Session.prototype.waiting = function () {
+Session.prototype.getWaiting = function () {
   return this.sockets()
     .filter(function (socket) {
       return this.getReadyState(socket) === READY_STATE.WAITING
@@ -99,13 +102,13 @@ Session.prototype.setState = function (socket, state) {
   // Update ready state before we emit anything.
   this._socketsReadyState[socket.id] = readyState
 
-  this.lastKnownTime = state.time
-  this.lastKnownTimestamp = Date.now()
-
-  // Only change the playback position on toggle.
-  if (readyState === previousReadyState) {
+  // Update playback state.
+  if (readyState !== READY_STATE.WAITING) {
     this.playState = playState
   }
+
+  this.lastKnownTime = state.time
+  this.lastKnownTimestamp = Date.now()
 
   this.emitPlayState(socket, readyState === READY_STATE.SEEKING)
 }
@@ -140,7 +143,7 @@ Session.prototype.getState = function (socket) {
     play: this.getPlayState(),
     ready: this.getReadyState(socket),
     time: this.getTime(),
-    waiting: this.waiting(),
+    waiting: this.getWaiting(),
     sort: Date.now()
   }
 }

@@ -23,7 +23,7 @@ interface SessionStateOptions {
 interface SessionStateState {
   sort: number
   time: number
-  play: string
+  play: boolean
   ready: string
   waiting: number
 }
