@@ -95,7 +95,7 @@ class SessionActionCreators extends ActionCreators {
     return Promise.resolve(sessionId)
   }
 
-  updateState (sessionId: string, state: { play: boolean; ready: string; time: number }) {
+  updateState (sessionId: string, state: { play: boolean; waiting: number; ready: string; time: number }) {
     const { connection } = this.app.sessionStore.state
 
     this.dispatch(SessionConstants.UPDATE_SESSION_STATE_STARTING)
