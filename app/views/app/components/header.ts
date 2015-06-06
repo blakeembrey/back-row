@@ -21,7 +21,6 @@ var TITLE_STYLE = Style.registerStyle({
   lineHeight: 1.5,
   textAlign: 'center',
   display: 'block',
-  color: '#fff',
   fontWeight: 'bold',
   textDecoration: 'none'
 })

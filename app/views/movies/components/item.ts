@@ -11,7 +11,6 @@ var HEIGHT = ~~((207 * 0.95) + BORDER)
 
 var TITLE_STYLE = Style.registerStyle({
   margin: '6px 0 0',
-  color: Colors.CLOUDS,
   maxWidth: '100%',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
