@@ -32,16 +32,20 @@ interface VideoProps {
 class Video extends React.Component<VideoProps, {}> {
 
   player: any
-  readyState: string
+  readyState = 'waiting'
   playState = false
 
   emitChange (playState: boolean, readyState: string) {
-    if (playState !== this.playState || readyState !== this.readyState) {
-      this.props.onChange(playState, readyState, this.player.currentTime() * 1000)
-    }
+    const changedPlayState = playState !== this.playState
+    const changedReadyState = readyState !== this.readyState
 
+    // Set the states before we trigger `onChange` to avoid looping.
     this.playState = playState
     this.readyState = readyState
+
+    if (changedPlayState || changedReadyState) {
+      this.props.onChange(playState, readyState, this.player.currentTime() * 1000)
+    }
   }
 
   setTime (time: number) {
@@ -50,6 +54,9 @@ class Video extends React.Component<VideoProps, {}> {
       const currentTime = this.player.currentTime()
 
       if (~~seconds !== ~~currentTime) {
+        // Avoid triggering `onChange` when triggering seek manually.
+        this.readyState = 'seeking'
+
         this.player.currentTime(seconds)
       }
     }

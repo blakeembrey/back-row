@@ -28,7 +28,6 @@ function Session (options) {
   this.id = uuid.v4()
 
   this.playState = DEFAULT_PLAY_STATE
-  this.currentPlayState = DEFAULT_PLAY_STATE
 
   this.lastKnownTime = 0
   this.lastKnownTimestamp = Date.now()
@@ -84,7 +83,7 @@ Session.prototype.waiting = function () {
  * Get the common status between users.
  */
 Session.prototype.getPlayState = function () {
-  return this.waiting() ? false : this.playState
+  return this.playState
 }
 
 /**
@@ -93,6 +92,7 @@ Session.prototype.getPlayState = function () {
 Session.prototype.setState = function (socket, state) {
   var readyState = state.ready
   var playState = state.play
+  var previousReadyState = this.getReadyState(socket)
 
   debug('set state', socket.id, state)
 
@@ -103,15 +103,8 @@ Session.prototype.setState = function (socket, state) {
   this.lastKnownTimestamp = Date.now()
 
   // Only change the playback position on toggle.
-  if (playState !== this.currentPlayState) {
-    // Force the user to stop if this is invalid.
-    if (this.waiting()) {
-      if (readyState !== READY_STATE.WAITING) {
-        this.emitState(socket)
-      }
-    } else {
-      this.playState = playState
-    }
+  if (readyState === previousReadyState) {
+    this.playState = playState
   }
 
   this.emitPlayState(socket, readyState === READY_STATE.SEEKING)
@@ -147,7 +140,8 @@ Session.prototype.getState = function (socket) {
     play: this.getPlayState(),
     ready: this.getReadyState(socket),
     time: this.getTime(),
-    id: Date.now()
+    waiting: this.waiting(),
+    sort: Date.now()
   }
 }
 
@@ -191,7 +185,7 @@ Session.prototype.join = function (socket) {
   this._sockets[socket.id] = socket
 
   // Set the socket state so other users will wait.
-  this.setState(socket, { ready: undefined, play: this.playState, time: time })
+  this.setState(socket, { play: this.playState, time: time })
 
   // Emit a "joined" event for the client.
   socket.emit('joined', this.id, {
@@ -213,12 +207,9 @@ Session.prototype.leave = function (socket) {
     // Update state when leaving on "ready" mode.
     this.emitPlayState(socket)
 
-    socket.emit('left', this.id)
-
     // Pause the movie playback if no one is watching.
     if (this.sockets().length === 0) {
       this.playState = DEFAULT_PLAY_STATE
-      this.currentPlayState = DEFAULT_PLAY_STATE
       this.lastKnownTime = this.getTime()
       this.lastKnownTimestamp = Date.now()
     }

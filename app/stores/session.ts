@@ -21,10 +21,11 @@ interface SessionStateOptions {
 }
 
 interface SessionStateState {
-  id: number
+  sort: number
   time: number
   play: string
   ready: string
+  waiting: number
 }
 
 export default class SessionStore extends Store<SessionState> {
@@ -76,6 +77,7 @@ export default class SessionStore extends Store<SessionState> {
   }
 
   leftSession (sessionId: string) {
+    delete this.state.connection
     delete this.state.sessions[sessionId]
 
     this.hasChanged()
@@ -84,7 +86,7 @@ export default class SessionStore extends Store<SessionState> {
   setSessionState (sessionId: string, state: SessionStateState) {
     var currentSession = this.state.sessions[sessionId]
 
-    if (!currentSession || currentSession.state.id > state.id) {
+    if (!currentSession || currentSession.state.sort > state.sort) {
       return
     }
 
