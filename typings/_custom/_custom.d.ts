@@ -11,3 +11,9 @@ interface Process {
 }
 
 declare function require (module: string): any
+
+declare module SocketIOClient {
+  interface Socket {
+    connect(): void
+  }
+}
