@@ -20,16 +20,6 @@ const VIDEO_WRAPPER_STYLE = Style.registerStyle({
   }
 })
 
-interface VideoProps {
-  poster?: string
-  src: string
-  onChange: (play: boolean, ready: string, time: number) => any
-  time?: number
-  play?: boolean
-  threshold?: number
-  className?: string
-}
-
 /**
  * Check if a value is within the target threshold.
  */
@@ -37,50 +27,46 @@ function within (value: number, lower: number, upper: number) {
   return value > lower && value < upper
 }
 
-class Video extends React.Component<VideoProps, {}> {
+interface VideoProps {
+  poster?: string
+  src: string
+  onChange: (state: VideoState) => any
+  time?: number
+  play?: boolean
+  threshold?: number
+  className?: string
+}
+
+interface VideoState {
+  time?: number
+  play?: boolean
+  ready?: string
+}
+
+class Video extends React.Component<VideoProps, VideoState> {
 
   player: any
-  time = 0
-  readyState = 'waiting'
-  playState = false
 
-  emitChange (playState: boolean, readyState: string) {
-    const time = Math.max(0, this.player.currentTime() * 1000)
-    const changedTime = time !== this.time
-    const changedPlayState = playState !== this.playState
-    const changedReadyState = readyState !== this.readyState
-
-    // Set the states before we trigger `onChange` to avoid looping.
-    this.time = time
-    this.playState = playState
-    this.readyState = readyState
-
-    if (changedPlayState || changedReadyState || changedTime) {
-      this.props.onChange(playState, readyState, time)
-    }
+  state: VideoState = {
+    time: 0,
+    play: false,
+    ready: undefined
   }
 
   setTime (time: number) {
-    if (time != null && time !== this.time) {
-      const { threshold } = this.props
-      const currentTime = this.player.currentTime() * 1000
+    const currentTime = this.getTime()
+    const { threshold } = this.props
 
-      console.log(this.time, time, currentTime, threshold, within(time, currentTime - threshold, currentTime + threshold))
-
-      if (!within(time, currentTime - threshold, currentTime + threshold)) {
-        this.time = time
-        this.player.currentTime(time / 1000)
-      }
+    if (!within(currentTime, time - threshold, time + threshold * 2)) {
+      this.player.currentTime(time / 1000)
     }
   }
 
+  getTime () {
+    return this.player.currentTime() * 1000
+  }
+
   setPlayState (playState: boolean) {
-    if (this.playState === playState) {
-      return
-    }
-
-    this.playState = playState
-
     if (playState) {
       this.player.play()
     } else {
@@ -88,13 +74,31 @@ class Video extends React.Component<VideoProps, {}> {
     }
   }
 
-  setPlayerState (props: VideoProps) {
-    this.setTime(props.time)
-    this.setPlayState(props.play)
+  setPlayerState (state: VideoState) {
+    this.setTime(state.time)
+    this.setPlayState(state.play)
+  }
+
+  componentWillReceiveProps (props: VideoProps) {
+    this.setState({ time: props.time, play: props.play })
+  }
+
+  shouldComponentUpdate (nextProps: VideoProps, nextState: VideoState) {
+    return this.state.time !== nextState.time ||
+      this.state.ready !== nextState.ready ||
+      this.state.play !== nextState.play
+  }
+
+  componentWillUpdate (props: VideoProps, state: VideoState) {
+    this.setPlayerState(state)
   }
 
   componentDidUpdate () {
-    this.setPlayerState(this.props)
+    this.props.onChange(this.state)
+  }
+
+  componentWillMount () {
+    this.setState({ time: this.props.time, play: this.props.play })
   }
 
   componentDidMount () {
@@ -115,30 +119,27 @@ class Video extends React.Component<VideoProps, {}> {
     })
 
     player.on('play', () => {
-      this.emitChange(true, this.readyState)
+      // Use player state since "play" and "pause" emits erroneously.
+      this.setState({ play: !player.paused(), time: this.getTime() })
     })
 
     player.on('pause', () => {
-      this.emitChange(false, this.readyState)
+      this.setState({ play: !player.paused(), time: this.getTime() })
     })
 
     player.on('seeking', () => {
-      this.emitChange(this.playState, this.readyState)
+      this.setState({ time: this.getTime() })
     })
 
     player.on('canplaythrough', () => {
-      this.emitChange(this.playState, 'ready')
+      this.setState({ ready: 'ready', time: this.getTime() })
     })
 
     player.on('waiting', () => {
-      this.emitChange(this.playState, 'waiting')
+      this.setState({ ready: 'waiting', time: this.getTime() })
     })
 
-    player.on('ended', () => {
-      this.emitChange(this.playState, 'ended')
-    })
-
-    this.setPlayerState(this.props)
+    this.setPlayerState(this.state)
   }
 
   render () {

@@ -32,8 +32,8 @@ class SessionView extends React.Component<SessionProps, {}> {
     return React.createElement(Watch, {
       session,
       latency,
-      onChange: (play: boolean, ready: string, time: number) => {
-        app.sessionActionCreators.updateState(session.id, { play, ready, time })
+      onChange: (state: any) => {
+        app.sessionActionCreators.updateState(session.id, state)
       }
     })
   }

@@ -17,9 +17,7 @@ var DEFAULT_PLAY_STATE = false
  */
 var READY_STATE = {
   READY: 'ready',
-  WAITING: 'waiting',
-  ENDED: 'ended',
-  SEEKING: 'seeking'
+  WAITING: 'waiting'
 }
 
 /**
@@ -55,9 +53,7 @@ Session.prototype.emitState = function (socket) {
 Session.prototype.emitPlayState = function (currentSocket, currentPlayState) {
   // Emit new play state to all available sockets.
   this.all().forEach(function (socket) {
-    // Ensure the current play state is correct. This blocks clients from
-    // playing when it should be waiting.
-    if (currentSocket.id === socket.id && this.getPlayState(socket) === currentPlayState) {
+    if (currentSocket.id === socket.id) {
       return
     }
 
@@ -71,11 +67,12 @@ Session.prototype.emitPlayState = function (currentSocket, currentPlayState) {
 Session.prototype.getWaiting = function (currentSocket) {
   return this.all()
     .filter(function (socket) {
-      const readyState = this.getReadyState(socket)
+      if (socket === currentSocket) {
+        return false
+      }
 
-      // Set as waiting when no ready state has been recieved.
-      return socket !== currentSocket &&
-        (!readyState || readyState === READY_STATE.WAITING)
+      // Set as waiting when no ready state has been received.
+      return this.getReadyState(socket) !== READY_STATE.READY
     }, this)
     .length
 }
@@ -84,6 +81,14 @@ Session.prototype.getWaiting = function (currentSocket) {
  * Get the common status between users.
  */
 Session.prototype.getPlayState = function (socket) {
+  const readyState = this.getReadyState(socket)
+
+  // Set waiting sockets to the default state.
+  if (readyState !== READY_STATE.READY) {
+    return this.playState
+  }
+
+  // If other sockets are waiting, paused the current socket.
   return this.getWaiting(socket) ? false : this.playState
 }
 
@@ -105,7 +110,8 @@ Session.prototype.setState = function (socket, state) {
   }
 
   // Update the play state when not waiting.
-  if (!this.getWaiting(socket) && this.playState !== state.play) {
+  // TODO: Figure out proper logic for handling changes from a paused socket.
+  if (this.playState !== state.play) {
     this.playState = state.play
     this.lastKnownSource = socket.id
 
@@ -149,7 +155,6 @@ Session.prototype.getTime = function () {
 Session.prototype.getState = function (currentSocket) {
   return {
     play: this.getPlayState(currentSocket),
-    ready: this.getReadyState(currentSocket),
     time: this.getTime(),
     waiting: this.getWaiting(currentSocket),
     timestamp: Date.now(),
@@ -178,7 +183,7 @@ Session.prototype.all = function () {
  * Get data by id.
  */
 Session.prototype.getReadyState = function (socket) {
-  return this.readyStates[socket.id]
+  return socket && this.readyStates[socket.id]
 }
 
 /**
