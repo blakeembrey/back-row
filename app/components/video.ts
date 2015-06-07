@@ -63,7 +63,7 @@ class Video extends React.Component<VideoProps, VideoState> {
   }
 
   getTime () {
-    return this.player.currentTime() * 1000
+    return Math.floor(this.player.currentTime() * 1000)
   }
 
   setPlayState (playState: boolean) {
