@@ -116,7 +116,7 @@ export default class SessionStore extends Store<SessionState> {
       return sum + value
     }, 0)
 
-    return sum / latency.length
+    return Math.ceil(sum / latency.length)
   }
 
 }
