@@ -17,7 +17,15 @@ var DEFAULT_PLAY_STATE = false
  */
 var READY_STATE = {
   READY: 'ready',
-  WAITING: 'waiting'
+  WAITING: 'waiting',
+  JOINED: 'joined'
+}
+
+/**
+ * Check a value is within bounds.
+ */
+function within (value, lower, upper) {
+  return value > lower && value < upper
 }
 
 /**
@@ -50,10 +58,10 @@ Session.prototype.emitState = function (socket) {
 /**
  * Emit the current state to all sockets.
  */
-Session.prototype.emitPlayState = function (currentSocket, currentPlayState) {
-  // Emit new play state to all available sockets.
+Session.prototype.emitPlayState = function (currentSocket) {
   this.all().forEach(function (socket) {
-    if (currentSocket.id === socket.id) {
+    // Enable skipping a passed in socket.
+    if (currentSocket === socket) {
       return
     }
 
@@ -72,7 +80,7 @@ Session.prototype.getWaiting = function (currentSocket) {
       }
 
       // Set as waiting when no ready state has been received.
-      return this.getReadyState(socket) !== READY_STATE.READY
+      return this.getReadyState(socket) === READY_STATE.WAITING
     }, this)
     .length
 }
@@ -84,7 +92,7 @@ Session.prototype.getPlayState = function (socket) {
   const readyState = this.getReadyState(socket)
 
   // Set waiting sockets to the default state.
-  if (readyState !== READY_STATE.READY) {
+  if (readyState === READY_STATE.WAITING) {
     return this.playState
   }
 
@@ -96,35 +104,46 @@ Session.prototype.getPlayState = function (socket) {
  * Handle updates in the session state.
  */
 Session.prototype.setState = function (socket, state) {
-  // Track whether we need to update other clients on the change.
-  var updated = false
+  // Emit joined state to other sockets.
+  if (state.ready === READY_STATE.JOINED) {
+    this.lastKnownSource = socket.id
+    this.emitPlayState(socket)
+
+    return
+  }
+
+  // Track whether we need to update other clients on the change. The time
+  // needs to be within bounds because the video client is 100% accurate.
+  var timeChanged = !within(this.getTime(), state.time - 200, state.time + 200)
+  var playStateChanged = this.getPlayState(socket) !== state.play
+  var readyStateChanged = this.getReadyState(socket) !== state.ready
 
   debug('set state', socket.id, state)
 
-  // Update ready state before we emit anything.
-  if (this.readyStates[socket.id] !== state.ready) {
-    this.readyStates[socket.id] = state.ready
-    this.lastKnownSource = socket.id
-
-    updated = true
+  // Update state when things have changed.
+  if (!timeChanged && !playStateChanged && !readyStateChanged) {
+    return
   }
 
-  // Update the play state when not waiting.
-  // TODO: Figure out proper logic for handling changes from a paused socket.
-  if (this.playState !== state.play) {
-    this.playState = state.play
-    this.lastKnownSource = socket.id
+  // Update the current socket state.
+  this.readyStates[socket.id] = state.ready
 
-    updated = true
+  // Emit the current state back to the socket when change is invalid.
+  if (this.getWaiting(socket)) {
+    if (playStateChanged) {
+      this.emitState(socket)
+    }
+
+    return
   }
 
-  // Update the timestamp when changing.
+  // Update global state data.
+  this.playState = state.play
   this.lastKnownTime = state.time
   this.lastKnownTimestamp = Date.now()
+  this.lastKnownSource = socket.id
 
-  if (updated) {
-    this.emitPlayState(socket, state.play)
-  }
+  this.emitPlayState()
 }
 
 /**
@@ -196,10 +215,7 @@ Session.prototype.join = function (socket, cb) {
   this.sockets[socket.id] = socket
 
   // Set the initial socket state to pause other clients.
-  this.setState(socket, {
-    play: this.playState,
-    time: time
-  })
+  this.setState(socket, { ready: READY_STATE.JOINED })
 
   // Send set up state back to the client.
   cb(this.id, {
