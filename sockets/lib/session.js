@@ -124,6 +124,9 @@ Session.prototype.setState = function (socket, state) {
 
   debug('set state', socket.id, state)
 
+  this.lastKnownTime = sessionTime(state.time)
+  this.lastKnownTimestamp = Date.now()
+
   // Update state when things have changed.
   if (!timeChanged && !playStateChanged && !readyStateChanged) {
     return
@@ -139,9 +142,6 @@ Session.prototype.setState = function (socket, state) {
     this.playState = state.play
     this.lastKnownSource = socket.id
   }
-
-  this.lastKnownTime = sessionTime(state.time)
-  this.lastKnownTimestamp = Date.now()
 
   this.emitPlayState(waiting ? undefined : socket)
 }
