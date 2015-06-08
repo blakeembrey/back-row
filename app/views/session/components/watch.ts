@@ -52,7 +52,7 @@ class WatchView extends React.Component<WatchProps, {}> {
       statusText += ` with ${peerCount} ${peerCount === 1 ? 'peer' : 'peers'}`
     }
 
-    if (ready === 'waiting') {
+    if (ready !== 'ready') {
       statusText += ` (buffering)`
     } else if (waiting) {
       statusText += ` (${waiting} buffering)`
