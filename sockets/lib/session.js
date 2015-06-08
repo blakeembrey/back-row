@@ -13,6 +13,11 @@ module.exports = Session
 var DEFAULT_PLAY_STATE = false
 
 /**
+ * Accuracy of session time.
+ */
+var SESSION_ACCURACY = 10
+
+/**
  * Store possible session states.
  */
 var READY_STATE = {
@@ -24,8 +29,8 @@ var READY_STATE = {
 /**
  * Check a value is within bounds.
  */
-function within (value, lower, upper) {
-  return value > lower && value < upper
+function sessionTime (value) {
+  return Math.round(value / SESSION_ACCURACY) * SESSION_ACCURACY
 }
 
 /**
@@ -80,7 +85,7 @@ Session.prototype.getWaiting = function (currentSocket) {
       }
 
       // Set as waiting when no ready state has been received.
-      return this.getReadyState(socket) === READY_STATE.WAITING
+      return this.getReadyState(socket) !== READY_STATE.READY
     }, this)
     .length
 }
@@ -92,7 +97,7 @@ Session.prototype.getPlayState = function (socket) {
   const readyState = this.getReadyState(socket)
 
   // Set waiting sockets to the default state.
-  if (readyState === READY_STATE.WAITING) {
+  if (readyState !== READY_STATE.READY) {
     return this.playState
   }
 
@@ -112,9 +117,8 @@ Session.prototype.setState = function (socket, state) {
     return
   }
 
-  // Track whether we need to update other clients on the change. The time
-  // needs to be within bounds because the video client is 100% accurate.
-  var timeChanged = !within(this.getTime(), state.time - 200, state.time + 200)
+  // Track whether we need to update other clients on the change.
+  var timeChanged = this.getTime() !== sessionTime(state.time)
   var playStateChanged = this.getPlayState(socket) !== state.play
   var readyStateChanged = this.getReadyState(socket) !== state.ready
 
@@ -125,25 +129,21 @@ Session.prototype.setState = function (socket, state) {
     return
   }
 
+  var waiting = this.getWaiting(socket)
+
   // Update the current socket state.
   this.readyStates[socket.id] = state.ready
 
   // Emit the current state back to the socket when change is invalid.
-  if (this.getWaiting(socket)) {
-    if (playStateChanged) {
-      this.emitState(socket)
-    }
-
-    return
+  if (!waiting) {
+    this.playState = state.play
+    this.lastKnownSource = socket.id
   }
 
-  // Update global state data.
-  this.playState = state.play
-  this.lastKnownTime = state.time
+  this.lastKnownTime = sessionTime(state.time)
   this.lastKnownTimestamp = Date.now()
-  this.lastKnownSource = socket.id
 
-  this.emitPlayState()
+  this.emitPlayState(waiting ? undefined : socket)
 }
 
 /**
@@ -165,7 +165,7 @@ Session.prototype.getTime = function () {
     return this.lastKnownTime
   }
 
-  return this.lastKnownTime + (Date.now() - this.lastKnownTimestamp)
+  return sessionTime(this.lastKnownTime + (Date.now() - this.lastKnownTimestamp))
 }
 
 /**
@@ -238,11 +238,11 @@ Session.prototype.leave = function (socket) {
     if (this.all().length === 0) {
       this.playState = DEFAULT_PLAY_STATE
       this.lastKnownTime = this.getTime()
-      this.lastKnownSource = undefined
       this.lastKnownTimestamp = Date.now()
+      this.lastKnownSource = undefined
     }
 
-    // Update state when leaving on "ready" mode.
+    // Update state when leaving.
     this.emitPlayState(socket)
   }
 }

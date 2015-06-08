@@ -26,22 +26,6 @@ class SessionActionCreators extends ActionCreators {
       // Resolve once it says we've connected.
       connection.once('connect', resolve)
 
-      /**
-       * Keep track of the server latency.
-       */
-      const ping = () => {
-        const now = Date.now()
-
-        connection.emit('ping', () => {
-          this.dispatch(SessionConstants.UPDATE_LATENCY, Date.now() - now + 50)
-
-          setTimeout(ping, 5000)
-        })
-      }
-
-      // Start pinging.
-      ping()
-
       connection.on('state', (sessionId: string, state: any) => {
         this.dispatch(SessionConstants.UPDATE_SESSION_STATE, sessionId, state)
       })
@@ -54,14 +38,12 @@ class SessionActionCreators extends ActionCreators {
 
   create (options: SessionCreateOpts) {
     return new Promise((resolve: (value: string) => void) => {
-      const now = Date.now()
       const { connection } = this.app.sessionStore.state
 
       this.dispatch(SessionConstants.CREATE_SESSION_STARTING)
 
       connection.emit('create', options, (sessionId: string, data: any) => {
         this.dispatch(SessionConstants.CREATE_SESSION, sessionId, data)
-        this.dispatch(SessionConstants.UPDATE_LATENCY, Date.now() - now)
 
         return resolve(sessionId)
       })
@@ -70,7 +52,6 @@ class SessionActionCreators extends ActionCreators {
 
   join (sessionId: string) {
     return new Promise((resolve: () => void) => {
-      const now = Date.now()
       const { connection } = this.app.sessionStore.state
 
       this.dispatch(SessionConstants.JOIN_SESSION_STARTING, sessionId)
@@ -78,7 +59,6 @@ class SessionActionCreators extends ActionCreators {
       connection.emit('join', sessionId, (joined: boolean, data: any) => {
         if (joined) {
           this.dispatch(SessionConstants.JOIN_SESSION, sessionId, data)
-          this.dispatch(SessionConstants.UPDATE_LATENCY, Date.now() - now)
         } else {
           this.dispatch(SessionConstants.JOIN_SESSION_FAILED, sessionId)
         }
@@ -106,18 +86,14 @@ class SessionActionCreators extends ActionCreators {
     return new Promise((resolve: () => void) => {
       const { connection } = this.app.sessionStore.state
 
-      this.dispatch(SessionConstants.UPDATE_SESSION_STATE_STARTING, sessionId, Date.now())
-
       if (!connection) {
         return resolve()
       }
 
-      const now = Date.now()
+      this.dispatch(SessionConstants.UPDATE_SESSION_STATE_STARTING, sessionId)
 
       connection.emit('state', sessionId, state, () => {
-        this.dispatch(SessionConstants.UPDATE_LATENCY, Date.now() - now)
-
-        resolve()
+        return resolve()
       })
 
       // Update the session in the store synchronously. Set the source to the

@@ -4,6 +4,8 @@ import videojs = require('video.js')
 
 const Style = create()
 
+const TIME_ACCURACY = 10
+
 const VIDEO_WRAPPER_STYLE = Style.registerStyle({
   flex: 1,
   WebkitFlex: 1,
@@ -19,13 +21,6 @@ const VIDEO_WRAPPER_STYLE = Style.registerStyle({
     backgroundSize: 'cover'
   }
 })
-
-/**
- * Check if a value is within the target threshold.
- */
-function within (value: number, lower: number, upper: number) {
-  return value > lower && value < upper
-}
 
 interface VideoProps {
   poster?: string
@@ -43,6 +38,10 @@ interface VideoState {
   ready?: string
 }
 
+function videoTime (value: number) {
+  return Math.round(value / TIME_ACCURACY) * TIME_ACCURACY
+}
+
 class Video extends React.Component<VideoProps, VideoState> {
 
   player: any
@@ -53,52 +52,55 @@ class Video extends React.Component<VideoProps, VideoState> {
     ready: undefined
   }
 
-  setTime (time: number) {
-    const currentTime = this.getTime()
-    const { threshold } = this.props
+  getTime () {
+    return videoTime(this.player.currentTime() * 1000)
+  }
 
-    if (!within(currentTime, time - threshold, time + threshold * 2)) {
+  hasStateChanged (newState: VideoState) {
+    return this.getTime() !== newState.time ||
+      this.state.ready !== newState.ready ||
+      this.state.play !== newState.play
+  }
+
+  updatePlayerState (state: VideoState) {
+    const currentTime = this.getTime()
+    const { time, play } = state
+
+    if (this.getTime() !== time) {
       this.player.currentTime(time / 1000)
     }
-  }
 
-  getTime () {
-    return Math.floor(this.player.currentTime() * 1000)
-  }
-
-  setPlayState (playState: boolean) {
-    if (playState) {
+    if (play) {
       this.player.play()
     } else {
       this.player.pause()
     }
   }
 
-  setPlayerState (state: VideoState) {
-    this.setTime(state.time)
-    this.setPlayState(state.play)
+  setAndEmitState (state: VideoState) {
+    const currentState = this.state
+
+    this.setState(state, () => {
+      if (this.hasStateChanged(currentState)) {
+        this.props.onChange(this.state)
+      }
+    })
   }
 
   componentWillReceiveProps (props: VideoProps) {
-    this.setState({ time: props.time, play: props.play })
+    this.setState({ time: videoTime(props.time), play: props.play })
   }
 
   shouldComponentUpdate (nextProps: VideoProps, nextState: VideoState) {
-    return this.state.time !== nextState.time ||
-      this.state.ready !== nextState.ready ||
-      this.state.play !== nextState.play
+    return this.hasStateChanged(nextState)
   }
 
-  componentWillUpdate (props: VideoProps, state: VideoState) {
-    this.setPlayerState(state)
-  }
-
-  componentDidUpdate () {
-    this.props.onChange(this.state)
+  componentWillUpdate (nextProps: VideoProps, nextState: VideoState) {
+    this.updatePlayerState(nextState)
   }
 
   componentWillMount () {
-    this.setState({ time: this.props.time, play: this.props.play })
+    this.setState({ time: videoTime(this.props.time), play: this.props.play })
   }
 
   componentWillUnmount () {
@@ -125,26 +127,26 @@ class Video extends React.Component<VideoProps, VideoState> {
 
     player.on('play', () => {
       // Use player state since "play" and "pause" emits erroneously.
-      this.setState({ play: !player.paused(), time: this.getTime() })
+      this.setAndEmitState({ play: !player.paused(), time: this.getTime() })
     })
 
     player.on('pause', () => {
-      this.setState({ play: !player.paused(), time: this.getTime() })
+      this.setAndEmitState({ play: !player.paused(), time: this.getTime() })
     })
 
     player.on('seeking', () => {
-      this.setState({ time: this.getTime() })
+      this.setAndEmitState({ time: this.getTime() })
     })
 
     player.on('canplaythrough', () => {
-      this.setState({ ready: 'ready', time: this.getTime() })
+      this.setAndEmitState({ ready: 'ready', time: this.getTime() })
     })
 
     player.on('waiting', () => {
-      this.setState({ ready: 'waiting', time: this.getTime() })
+      this.setAndEmitState({ ready: 'waiting', time: this.getTime() })
     })
 
-    this.setPlayerState(this.state)
+    this.updatePlayerState(this.state)
   }
 
   render () {
