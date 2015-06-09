@@ -13,11 +13,6 @@ module.exports = Session
 var DEFAULT_PLAY_STATE = false
 
 /**
- * Time between client pings.
- */
-var PING_INTERVAL = 10000
-
-/**
  * Accuracy of the times from clients.
  */
 var TIME_ACCURACY = 100
@@ -34,29 +29,16 @@ var READY_STATE = {
  * Create a session handler.
  */
 function Session (options) {
-  var self = this
-
   this.id = uuid.v4()
 
   this.playState = DEFAULT_PLAY_STATE
   this.sockets = {}
-  this.pings = {}
   this.readyStates = {}
   this.options = options
 
   this.lastKnownTime = 0
   this.lastKnownSource = undefined
-  this.lastKnownTimestamp = Date.now()
-
-  // Set up ping handler.
-  function ping () {
-    self.ping()
-
-    setTimeout(ping, PING_INTERVAL)
-  }
-
-  ping()
-}
+  this.lastKnownTimestamp = Date.now()}
 
 /**
  * Emit state to a socket instance.
@@ -124,9 +106,8 @@ Session.prototype.setState = function (socket, state) {
     return
   }
 
-  var time = state.time + (state.play ? this.getPing(socket) : 0)
   var currentTime = this.getTime()
-  var timeChanged = currentTime < time - TIME_ACCURACY || currentTime > time + TIME_ACCURACY
+  var timeChanged = currentTime < state.time - TIME_ACCURACY || currentTime > state.time + TIME_ACCURACY
   var playStateChanged = this.getPlayState(socket) !== state.play
   var readyStateChanged = this.getReadyState(socket) !== state.ready
 
@@ -142,7 +123,7 @@ Session.prototype.setState = function (socket, state) {
   // Emit the current state back to the socket when change is invalid.
   if (!waiting) {
     this.playState = state.play
-    this.lastKnownTime = time
+    this.lastKnownTime = state.time
     this.lastKnownTimestamp = Date.now()
     this.lastKnownSource = socket.id
   }
@@ -171,13 +152,7 @@ Session.prototype.getTime = function (socket) {
     return this.lastKnownTime
   }
 
-  var playTime = this.lastKnownTime + (Date.now() - this.lastKnownTimestamp)
-
-  if (socket) {
-    playTime += this.getPing(socket)
-  }
-
-  return playTime
+  return this.lastKnownTime + (Date.now() - this.lastKnownTimestamp)
 }
 
 /**
@@ -275,26 +250,5 @@ Session.prototype.emit = function () {
 Session.prototype.destroy = function () {
   this.all().forEach(function (socket) {
     this.leave(socket)
-  })
-}
-
-/**
- * Get the ping rate for the socket.
- */
-Session.prototype.getPing = function (socket) {
-  return this.pings[socket && socket.id] || 0
-}
-
-/**
- * Get the ping rate of all socket connections.
- */
-Session.prototype.ping = function () {
-  var now = Date.now()
-  var self = this
-
-  this.all().forEach(function (socket) {
-    socket.emit('ping', function () {
-      self.pings[socket.id] = Date.now() - now
-    })
   })
 }
