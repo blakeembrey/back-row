@@ -95,6 +95,10 @@ class SessionActionCreators extends ActionCreators {
       }
 
       connection.emit('state', sessionId, state, () => resolve())
+
+      this.dispatch(SessionConstants.UPDATE_SESSION_STATE, sessionId, extend(state, {
+        source: connection.id
+      }))
     })
   }
 

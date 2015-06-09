@@ -2,6 +2,8 @@ import React = require('react')
 import { create } from 'react-free-style'
 import videojs = require('video.js')
 
+const TIME_ACCURACY = 50
+
 const Style = create()
 
 const VIDEO_WRAPPER_STYLE = Style.registerStyle({
@@ -60,8 +62,7 @@ class Video extends React.Component<VideoProps, VideoState> {
     const currentTime = this.getTime()
     const { time, play } = state
 
-    // Allow some time inaccuracy in the player.
-    if (currentTime < time - 50 || currentTime > time + 50) {
+    if (currentTime < time - TIME_ACCURACY || currentTime > time + TIME_ACCURACY) {
       this.player.currentTime(time / 1000)
     }
 

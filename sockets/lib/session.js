@@ -124,11 +124,10 @@ Session.prototype.setState = function (socket, state) {
     return
   }
 
-  var play = state.play
-  var time = state.time + (play ? this.getPing(socket) : 0)
+  var time = state.time + (state.play ? this.getPing(socket) : 0)
   var currentTime = this.getTime()
   var timeChanged = currentTime < time - TIME_ACCURACY || currentTime > time + TIME_ACCURACY
-  var playStateChanged = this.getPlayState(socket) !== play
+  var playStateChanged = this.getPlayState(socket) !== state.play
   var readyStateChanged = this.getReadyState(socket) !== state.ready
 
   debug('set state', socket.id, state)
@@ -142,7 +141,7 @@ Session.prototype.setState = function (socket, state) {
 
   // Emit the current state back to the socket when change is invalid.
   if (!waiting) {
-    this.playState = play
+    this.playState = state.play
     this.lastKnownTime = time
     this.lastKnownTimestamp = Date.now()
     this.lastKnownSource = socket.id
@@ -150,7 +149,7 @@ Session.prototype.setState = function (socket, state) {
 
   this.readyStates[socket.id] = state.ready
 
-  this.emitPlayState()
+  this.emitPlayState(waiting ? undefined : socket)
 }
 
 /**
@@ -167,12 +166,18 @@ Session.prototype.setOptions = function (socket, options) {
 /**
  * Calculate the current time.
  */
-Session.prototype.getTime = function () {
+Session.prototype.getTime = function (socket) {
   if (this.getPlayState() !== true) {
     return this.lastKnownTime
   }
 
-  return this.lastKnownTime + (Date.now() - this.lastKnownTimestamp)
+  var playTime = this.lastKnownTime + (Date.now() - this.lastKnownTimestamp)
+
+  if (socket) {
+    playTime += this.getPing(socket)
+  }
+
+  return playTime
 }
 
 /**
@@ -182,7 +187,7 @@ Session.prototype.getState = function (currentSocket) {
   return {
     play: this.getPlayState(currentSocket),
     ready: this.getReadyState(currentSocket),
-    time: this.getTime(),
+    time: this.getTime(currentSocket),
     waiting: this.getWaiting(currentSocket),
     timestamp: Date.now(),
     peers: Object.keys(this.sockets).filter(function (id) { return id !== currentSocket.id }),
