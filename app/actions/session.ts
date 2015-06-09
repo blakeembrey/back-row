@@ -26,6 +26,10 @@ class SessionActionCreators extends ActionCreators {
       // Resolve once it says we've connected.
       connection.once('connect', resolve)
 
+      connection.on('ping', (cb: () => void) => {
+        cb()
+      })
+
       connection.on('state', (sessionId: string, state: any) => {
         this.dispatch(SessionConstants.UPDATE_SESSION_STATE, sessionId, state)
       })

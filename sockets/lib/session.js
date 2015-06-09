@@ -13,28 +13,49 @@ module.exports = Session
 var DEFAULT_PLAY_STATE = false
 
 /**
+ * Time between client pings.
+ */
+var PING_INTERVAL = 10000
+
+/**
+ * Accuracy of the times from clients.
+ */
+var TIME_ACCURACY = 100
+
+/**
  * Store possible session states.
  */
 var READY_STATE = {
   READY: 'ready',
-  WAITING: 'waiting',
-  JOINED: 'joined'
+  WAITING: 'waiting'
 }
 
 /**
  * Create a session handler.
  */
 function Session (options) {
+  var self = this
+
   this.id = uuid.v4()
 
   this.playState = DEFAULT_PLAY_STATE
   this.sockets = {}
+  this.pings = {}
   this.readyStates = {}
   this.options = options
 
   this.lastKnownTime = 0
   this.lastKnownSource = undefined
   this.lastKnownTimestamp = Date.now()
+
+  // Set up ping handler.
+  function ping () {
+    self.ping()
+
+    setTimeout(ping, PING_INTERVAL)
+  }
+
+  ping()
 }
 
 /**
@@ -82,10 +103,8 @@ Session.prototype.getWaiting = function (currentSocket) {
  * Get the common status between users.
  */
 Session.prototype.getPlayState = function (socket) {
-  const readyState = this.getReadyState(socket)
-
   // Set waiting sockets to the default state.
-  if (readyState !== READY_STATE.READY) {
+  if (socket && this.getReadyState(socket) !== READY_STATE.READY) {
     return this.playState
   }
 
@@ -98,16 +117,18 @@ Session.prototype.getPlayState = function (socket) {
  */
 Session.prototype.setState = function (socket, state) {
   // Emit joined state to other sockets.
-  if (state.ready === READY_STATE.JOINED) {
+  if (state.ready == null) {
     this.lastKnownSource = socket.id
     this.emitPlayState(socket)
 
     return
   }
 
-  // Track whether we need to update other clients on the change.
-  var timeChanged = this.getTime() !== state.time
-  var playStateChanged = this.getPlayState(socket) !== state.play
+  var play = state.play
+  var time = state.time + (play ? this.getPing(socket) : 0)
+  var currentTime = this.getTime()
+  var timeChanged = currentTime < time - TIME_ACCURACY || currentTime > time + TIME_ACCURACY
+  var playStateChanged = this.getPlayState(socket) !== play
   var readyStateChanged = this.getReadyState(socket) !== state.ready
 
   debug('set state', socket.id, state)
@@ -119,17 +140,15 @@ Session.prototype.setState = function (socket, state) {
 
   var waiting = this.getWaiting(socket)
 
-  // Update the current socket state.
-  this.readyStates[socket.id] = state.ready
-
   // Emit the current state back to the socket when change is invalid.
   if (!waiting) {
-    this.playState = state.play
+    this.playState = play
+    this.lastKnownTime = time
+    this.lastKnownTimestamp = Date.now()
     this.lastKnownSource = socket.id
   }
 
-  this.lastKnownTime = state.time
-  this.lastKnownTimestamp = Date.now()
+  this.readyStates[socket.id] = state.ready
 
   this.emitPlayState()
 }
@@ -198,13 +217,11 @@ Session.prototype.getReadyState = function (socket) {
  * Join the session.
  */
 Session.prototype.join = function (socket, cb) {
-  var time = this.getTime()
-
   // Add the socket after getting the current time.
   this.sockets[socket.id] = socket
 
   // Set the initial socket state to pause other clients.
-  this.setState(socket, { ready: READY_STATE.JOINED })
+  this.setState(socket, { ready: null })
 
   // Send set up state back to the client.
   cb(this.id, {
@@ -217,23 +234,23 @@ Session.prototype.join = function (socket, cb) {
  * Remove a socket from the session.
  */
 Session.prototype.leave = function (socket) {
-  var socket = this.sockets[socket && socket.id]
-
-  if (socket) {
-    delete this.sockets[socket.id]
-    delete this.readyStates[socket.id]
-
-    // Reset playback if no one is watching.
-    if (this.all().length === 0) {
-      this.playState = DEFAULT_PLAY_STATE
-      this.lastKnownTime = this.getTime()
-      this.lastKnownTimestamp = Date.now()
-      this.lastKnownSource = undefined
-    }
-
-    // Update state when leaving.
-    this.emitPlayState(socket)
+  if (!this.sockets[socket && socket.id]) {
+    return
   }
+
+  delete this.sockets[socket.id]
+  delete this.readyStates[socket.id]
+
+  // Reset playback if no one is watching.
+  if (this.all().length === 0) {
+    this.playState = DEFAULT_PLAY_STATE
+    this.lastKnownTime = this.getTime()
+    this.lastKnownTimestamp = Date.now()
+    this.lastKnownSource = undefined
+  }
+
+  // Update state when leaving.
+  this.emitPlayState()
 }
 
 /**
@@ -253,5 +270,26 @@ Session.prototype.emit = function () {
 Session.prototype.destroy = function () {
   this.all().forEach(function (socket) {
     this.leave(socket)
+  })
+}
+
+/**
+ * Get the ping rate for the socket.
+ */
+Session.prototype.getPing = function (socket) {
+  return this.pings[socket && socket.id] || 0
+}
+
+/**
+ * Get the ping rate of all socket connections.
+ */
+Session.prototype.ping = function () {
+  var now = Date.now()
+  var self = this
+
+  this.all().forEach(function (socket) {
+    socket.emit('ping', function () {
+      self.pings[socket.id] = Date.now() - now
+    })
   })
 }
