@@ -45,17 +45,20 @@ class TorrentStore extends Store<TorrentState> {
   addTorrent (movie: any) {
     this.state.movies[movie.imdb_code] = {}
 
-    movie.torrents.forEach((torrent: any) => {
-      this.state.movies[movie.imdb_code][torrent.quality] = {
-        hash: torrent.hash,
-        uploaded: torrent.date_uploaded_unix,
-        peers: torrent.peers,
-        seeds: torrent.seeds,
-        quality: torrent.quality,
-        size: torrent.size_bytes,
-        url: torrent.url
-      }
-    })
+    // The movie could be DCMA removed and have no torrents linked.
+    if (movie.torrents) {
+      movie.torrents.forEach((torrent: any) => {
+        this.state.movies[movie.imdb_code][torrent.quality] = {
+          hash: torrent.hash,
+          uploaded: torrent.date_uploaded_unix,
+          peers: torrent.peers,
+          seeds: torrent.seeds,
+          quality: torrent.quality,
+          size: torrent.size_bytes,
+          url: torrent.url
+        }
+      })
+    }
 
     this.hasChanged()
   }

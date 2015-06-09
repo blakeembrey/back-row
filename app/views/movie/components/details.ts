@@ -130,7 +130,7 @@ class MovieDetailsView extends React.Component<MovieDetailsProps, {}> {
           },
           movie.title
         ),
-        React.createElement(
+        qualities.length ? React.createElement(
           Dropdown,
           {
             className: TORRENT_STYLE.className,
@@ -150,6 +150,13 @@ class MovieDetailsView extends React.Component<MovieDetailsProps, {}> {
               }
             )
           )
+        ) : React.createElement(
+          Button,
+          {
+            className: TORRENT_STYLE.className,
+            disabled: true
+          },
+          'No torrents available'
         )
       ),
       React.createElement(
@@ -164,7 +171,7 @@ class MovieDetailsView extends React.Component<MovieDetailsProps, {}> {
           },
           moment(movie.released).format('MMM YYYY')
         ),
-        movie.genres.length ? React.createElement(
+        movie.genres ? React.createElement(
           'span',
           {
             className: MOVIE_META_ITEM_STYLE.className
@@ -200,7 +207,7 @@ class MovieDetailsView extends React.Component<MovieDetailsProps, {}> {
         {
           className: MOVIE_FOOTER_STYLE.className
         },
-        React.createElement(
+        torrent ? React.createElement(
           Link,
           {
             className: MOVIE_FOOTER_ITEM_STYLE.className,
@@ -211,7 +218,7 @@ class MovieDetailsView extends React.Component<MovieDetailsProps, {}> {
             }
           },
           React.createElement(Button, null, 'Watch Now')
-        ),
+        ) : null,
         movie.trailer ? React.createElement(
           'a',
           {
@@ -221,7 +228,7 @@ class MovieDetailsView extends React.Component<MovieDetailsProps, {}> {
           },
           React.createElement(Button, null, 'Watch Trailer')
         ) : null,
-        React.createElement(
+        torrent ? React.createElement(
           'a',
           {
             className: Style.join(
@@ -236,7 +243,7 @@ class MovieDetailsView extends React.Component<MovieDetailsProps, {}> {
             style: { marginRight: 10 }
           }),
           `Download (${torrent.quality})`
-        )
+        ) : null
       )
     )
   }
