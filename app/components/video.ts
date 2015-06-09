@@ -4,8 +4,6 @@ import videojs = require('video.js')
 
 const Style = create()
 
-const TIME_ACCURACY = 10
-
 const VIDEO_WRAPPER_STYLE = Style.registerStyle({
   flex: 1,
   WebkitFlex: 1,
@@ -38,10 +36,6 @@ interface VideoState {
   ready?: string
 }
 
-function videoTime (value: number) {
-  return Math.round(value / TIME_ACCURACY) * TIME_ACCURACY
-}
-
 class Video extends React.Component<VideoProps, VideoState> {
 
   player: any
@@ -53,7 +47,7 @@ class Video extends React.Component<VideoProps, VideoState> {
   }
 
   getTime () {
-    return videoTime(this.player.currentTime() * 1000)
+    return Math.floor(this.player.currentTime() * 1000)
   }
 
   hasStateChanged (newState: VideoState) {
@@ -66,7 +60,8 @@ class Video extends React.Component<VideoProps, VideoState> {
     const currentTime = this.getTime()
     const { time, play } = state
 
-    if (this.getTime() !== time) {
+    // Allow some time inaccuracy in the player.
+    if (currentTime < time - 50 || currentTime > time + 50) {
       this.player.currentTime(time / 1000)
     }
 
@@ -78,17 +73,17 @@ class Video extends React.Component<VideoProps, VideoState> {
   }
 
   setAndEmitState (state: VideoState) {
-    const currentState = this.state
+    const previousState = this.state
 
     this.setState(state, () => {
-      if (this.hasStateChanged(currentState)) {
+      if (this.hasStateChanged(previousState)) {
         this.props.onChange(this.state)
       }
     })
   }
 
   componentWillReceiveProps (props: VideoProps) {
-    this.setState({ time: videoTime(props.time), play: props.play })
+    this.setState({ time: props.time, play: props.play })
   }
 
   shouldComponentUpdate (nextProps: VideoProps, nextState: VideoState) {
@@ -100,7 +95,7 @@ class Video extends React.Component<VideoProps, VideoState> {
   }
 
   componentWillMount () {
-    this.setState({ time: videoTime(this.props.time), play: this.props.play })
+    this.setState({ time: this.props.time, play: this.props.play })
   }
 
   componentWillUnmount () {
@@ -125,18 +120,14 @@ class Video extends React.Component<VideoProps, VideoState> {
       height: '100%'
     })
 
-    player.on('play', () => {
+    const playStateChangeHandler = () => {
       // Use player state since "play" and "pause" emits erroneously.
       this.setAndEmitState({ play: !player.paused(), time: this.getTime() })
-    })
+    }
 
-    player.on('pause', () => {
-      this.setAndEmitState({ play: !player.paused(), time: this.getTime() })
-    })
-
-    player.on('seeking', () => {
-      this.setAndEmitState({ time: this.getTime() })
-    })
+    player.on('play', playStateChangeHandler)
+    player.on('pause', playStateChangeHandler)
+    player.on('seeking', playStateChangeHandler)
 
     player.on('canplaythrough', () => {
       this.setAndEmitState({ ready: 'ready', time: this.getTime() })

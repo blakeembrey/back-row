@@ -13,24 +13,12 @@ module.exports = Session
 var DEFAULT_PLAY_STATE = false
 
 /**
- * Accuracy of session time.
- */
-var SESSION_ACCURACY = 10
-
-/**
  * Store possible session states.
  */
 var READY_STATE = {
   READY: 'ready',
   WAITING: 'waiting',
   JOINED: 'joined'
-}
-
-/**
- * Check a value is within bounds.
- */
-function sessionTime (value) {
-  return Math.round(value / SESSION_ACCURACY) * SESSION_ACCURACY
 }
 
 /**
@@ -118,14 +106,11 @@ Session.prototype.setState = function (socket, state) {
   }
 
   // Track whether we need to update other clients on the change.
-  var timeChanged = this.getTime() !== sessionTime(state.time)
+  var timeChanged = this.getTime() !== state.time
   var playStateChanged = this.getPlayState(socket) !== state.play
   var readyStateChanged = this.getReadyState(socket) !== state.ready
 
   debug('set state', socket.id, state)
-
-  this.lastKnownTime = sessionTime(state.time)
-  this.lastKnownTimestamp = Date.now()
 
   // Update state when things have changed.
   if (!timeChanged && !playStateChanged && !readyStateChanged) {
@@ -143,7 +128,10 @@ Session.prototype.setState = function (socket, state) {
     this.lastKnownSource = socket.id
   }
 
-  this.emitPlayState(waiting ? undefined : socket)
+  this.lastKnownTime = state.time
+  this.lastKnownTimestamp = Date.now()
+
+  this.emitPlayState()
 }
 
 /**
@@ -165,7 +153,7 @@ Session.prototype.getTime = function () {
     return this.lastKnownTime
   }
 
-  return sessionTime(this.lastKnownTime + (Date.now() - this.lastKnownTimestamp))
+  return this.lastKnownTime + (Date.now() - this.lastKnownTimestamp)
 }
 
 /**
@@ -174,6 +162,7 @@ Session.prototype.getTime = function () {
 Session.prototype.getState = function (currentSocket) {
   return {
     play: this.getPlayState(currentSocket),
+    ready: this.getReadyState(currentSocket),
     time: this.getTime(),
     waiting: this.getWaiting(currentSocket),
     timestamp: Date.now(),

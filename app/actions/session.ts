@@ -90,17 +90,7 @@ class SessionActionCreators extends ActionCreators {
         return resolve()
       }
 
-      this.dispatch(SessionConstants.UPDATE_SESSION_STATE_STARTING, sessionId)
-
-      connection.emit('state', sessionId, state, () => {
-        return resolve()
-      })
-
-      // Update the session in the store synchronously. Set the source to the
-      // current connection and allow the store to handle the peers merging.
-      this.dispatch(SessionConstants.UPDATE_SESSION_STATE, sessionId, extend(state, {
-        source: connection.id
-      }))
+      connection.emit('state', sessionId, state, () => resolve())
     })
   }
 
