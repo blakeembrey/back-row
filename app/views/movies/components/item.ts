@@ -3,13 +3,18 @@ import { create } from 'react-free-style'
 import { Link } from 'react-router'
 import * as Colors from '../../../utils/colors'
 
-var Style = create()
+const Style = create()
 
-var BORDER = 3
-var WIDTH = ~~((138 * 0.95) + BORDER)
-var HEIGHT = ~~((207 * 0.95) + BORDER)
+const BORDER = 3
+const WIDTH = ~~((138 * 0.95) + BORDER)
+const HEIGHT = ~~((207 * 0.95) + BORDER)
 
-var TITLE_STYLE = Style.registerStyle({
+const ITEM_CONTAINER_STYLE = Style.registerStyle({
+  paddingTop: 10,
+  paddingBottom: 10
+})
+
+const TITLE_STYLE = Style.registerStyle({
   margin: '6px 0 0',
   maxWidth: '100%',
   overflow: 'hidden',
@@ -17,33 +22,32 @@ var TITLE_STYLE = Style.registerStyle({
   whiteSpace: 'nowrap'
 })
 
-var COVER_STYLE = Style.registerStyle({
+const COVER_STYLE = Style.registerStyle({
   width: WIDTH,
   height: HEIGHT,
   borderRadius: BORDER,
-  backgroundColor: '#000',
   border: '2px solid ' + Colors.CLOUDS,
-  overflow: 'hidden'
-})
-
-var BACKGROUND_STYLE = Style.registerStyle({
-  flex: 1,
-  WebkitFlex: 1,
   backgroundSize: 'cover',
   backgroundPosition: 'center'
 })
 
-var ITEM_STYLE = Style.registerStyle({
-  margin: '0.8em',
+const COVER_OVERLAY_STYLE = Style.registerStyle({
+  opacity: 0,
+  backgroundColor: '#000',
+  flex: 1,
+  WebkitFlex: 1
+})
+
+const ITEM_STYLE = Style.registerStyle({
   width: WIDTH,
   fontSize: '0.8em',
   textDecoration: 'none',
 
-  ['&:hover ' + COVER_STYLE.selector]: {
+  [`&:hover ${COVER_STYLE.selector}`]: {
     borderColor: Colors.ALIZARIN
   },
 
-  ['&:hover ' + BACKGROUND_STYLE.selector]: {
+  [`&:hover ${COVER_OVERLAY_STYLE.selector}`]: {
     opacity: 0.5
   }
 })
@@ -64,17 +68,34 @@ class MovieItem extends React.Component<MovieItemProps, {}> {
     }
 
     return React.createElement(
-      Link,
-      { to: 'movie', params: { imdbId }, className: ITEM_STYLE.className },
+      'div',
+      {
+        className: ITEM_CONTAINER_STYLE.className
+      },
       React.createElement(
-        'div',
-        { className: COVER_STYLE.className },
+        Link,
+        {
+          to: 'movie',
+          params: { imdbId },
+          className: ITEM_STYLE.className
+        },
         React.createElement(
           'div',
-          { className: BACKGROUND_STYLE.className, style: backgroundStyle }
-        )
-      ),
-      React.createElement('p', { className: TITLE_STYLE.className }, title)
+          {
+            className: COVER_STYLE.className,
+            style: backgroundStyle
+          },
+          React.createElement(
+            'div',
+            {
+              className: COVER_OVERLAY_STYLE.className
+            }
+          )
+        ),
+        React.createElement('p', {
+          className: TITLE_STYLE.className
+        }, title)
+      )
     )
   }
 

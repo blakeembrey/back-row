@@ -16,8 +16,7 @@ var LIST_STYLE = Style.registerStyle({
   flexDirection: 'row',
   WebkitFlexDirection: 'row',
   justifyContent: 'space-between',
-  WebkitJustifyContent: 'space-between',
-  padding: '0 15px'
+  WebkitJustifyContent: 'space-between'
 }, grid(10))
 
 var LIST_CONTAINER_STYLE = Style.registerStyle({
@@ -26,7 +25,9 @@ var LIST_CONTAINER_STYLE = Style.registerStyle({
   alignItems: 'center',
   WebkitAlignItems: 'center',
   justifyContent: 'center',
-  WebkitJustifyContent: 'center'
+  WebkitJustifyContent: 'center',
+  overflow: 'hidden',
+  padding: '5px 15px'
 })
 
 interface MoviesProps {
@@ -60,6 +61,7 @@ class MoviesView extends React.Component<MoviesProps, {}> {
       React.createElement(
         List,
         {
+          type: 'uniform',
           itemsRenderer: (items: any[], ref: string) => {
             return React.createElement('div', { className: LIST_STYLE.className, ref }, items)
           },
