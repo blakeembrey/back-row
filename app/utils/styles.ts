@@ -7,8 +7,8 @@ export function grid (size: number | string) {
     marginRight: `-${size}`,
 
     '> *': {
-      paddingLeft: size,
-      paddingRight: size
+      marginLeft: size,
+      marginRight: size
     }
   }
 }
