@@ -6,7 +6,7 @@ import Spinner from '../../components/spinner'
 import { Summary } from '../../stores/movies'
 import MovieItem from './components/item'
 import { grid } from '../../utils/styles'
-import Application from '../../app'
+import App from '../../app'
 
 var Style = create()
 
@@ -35,7 +35,7 @@ interface MoviesProps {
   isLoading: boolean
   count: number
   hasMore: boolean
-  app: Application
+  app: App
 }
 
 interface ScrollListProps {
@@ -54,6 +54,8 @@ class MoviesView extends React.Component<MoviesProps, {}> {
 
   render () {
     var length = this.props.movies.length
+
+    this.props.app.pageActionCreators.title('Movies')
 
     return React.createElement(
       'div',

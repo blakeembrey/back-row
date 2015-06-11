@@ -7,6 +7,7 @@ import { Torrent } from '../../stores/torrent'
 import MoviePoster from './components/poster'
 import MovieDetails from './components/details'
 import { otherwise } from '../../utils/common'
+import App from '../../app'
 
 var Style = create()
 
@@ -61,6 +62,7 @@ var MOVIE_DETAILS_STYLE = Style.registerStyle({
 
 interface MovieProps {
   movie: Movie
+  app: App
   torrents: {
     [quality: string]: Torrent
   }
@@ -91,6 +93,8 @@ class MovieView extends React.Component<MovieProps, MovieState> {
 
   render () {
     var { movie, torrents } = this.props
+
+    this.props.app.pageActionCreators.title(movie.title)
 
     return React.createElement(
       'div',
@@ -152,6 +156,8 @@ export default createContainer(Style.component(MovieView), {
     }
   },
   pending () {
+    this.app.pageActionCreators.title('Loading movie...')
+
     return React.createElement(Spinner)
   }
 })

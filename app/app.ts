@@ -9,6 +9,7 @@ import MovieQueries from './queries/movie'
 import MoviesQueries from './queries/movies'
 import TorrentQueries from './queries/torrent'
 
+import PageActionCreators from './actions/page'
 import SessionActionCreators from './actions/session'
 
 class App extends Application {
@@ -22,6 +23,7 @@ class App extends Application {
   moviesQueries: MoviesQueries
   torrentQueries: TorrentQueries
 
+  pageActionCreators: PageActionCreators
   sessionActionCreators: SessionActionCreators
 
   constructor () {
@@ -37,6 +39,7 @@ class App extends Application {
       moviesQueries: MoviesQueries,
       torrentQueries: TorrentQueries,
 
+      pageActionCreators: PageActionCreators,
       sessionActionCreators: SessionActionCreators
     })
   }

@@ -2,7 +2,7 @@ import React = require('react')
 import { create } from 'react-free-style'
 import { createContainer } from 'marty'
 import Spinner from '../../components/spinner'
-import Application from '../../app'
+import App from '../../app'
 import Watch from './components/watch'
 import { Session } from '../../stores/session'
 
@@ -13,7 +13,7 @@ const FAILED_JOIN_STYLE = Style.registerStyle({
 })
 
 interface SessionProps {
-  app: Application
+  app: App
   session: Session
   latency: number
 }
@@ -28,6 +28,8 @@ class SessionView extends React.Component<SessionProps, {}> {
 
   render () {
     const { app, session, latency } = this.props
+
+    app.pageActionCreators.title('Watching session...')
 
     return React.createElement(Watch, {
       session,
@@ -56,11 +58,15 @@ export default Style.component(createContainer(SessionView, {
     }
   },
   pending () {
+    this.app.pageActionCreators.title('Loading session...')
+
     return React.createElement(Spinner)
   },
   failed (errors: any) {
+    this.app.pageActionCreators.title('Failed to load session...')
+
     return React.createElement('span', {
       className: FAILED_JOIN_STYLE.className
-    }, 'Failed to join session')
+    }, 'Failed to load session')
   }
 }))

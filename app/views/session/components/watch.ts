@@ -7,7 +7,7 @@ import { Torrent } from '../../../stores/torrent'
 import { Movie } from '../../../stores/movie'
 import { Session } from '../../../stores/session'
 import { BASE_URL } from '../../../utils/config'
-import Application from '../../../app'
+import App from '../../../app'
 
 const Style = create()
 
@@ -27,7 +27,7 @@ const STATUS_STYLE = Style.registerStyle({
 })
 
 interface WatchProps {
-  app: Application
+  app: App
   onChange: (status: string, time: number) => any
   session: Session
   torrents: {
@@ -40,13 +40,13 @@ interface WatchProps {
 class WatchView extends React.Component<WatchProps, {}> {
 
   render () {
-    const { torrents, movie, onChange, session, latency } = this.props
+    const { torrents, movie, onChange, session, latency, app } = this.props
     const { options, state } = session
     const { time, play, ready, waiting } = state
     const torrent = torrents[options.quality]
     const peerCount = state.peers.length
 
-    let statusText = `Watching "${movie.title}"`
+    let statusText = `Watching ${movie.title}`
 
     if (peerCount) {
       statusText += ` with ${peerCount} ${peerCount === 1 ? 'peer' : 'peers'}`
@@ -57,6 +57,8 @@ class WatchView extends React.Component<WatchProps, {}> {
     } else if (waiting) {
       statusText += ` (${waiting} buffering)`
     }
+
+    app.pageActionCreators.title(statusText)
 
     return React.createElement(
       'div',

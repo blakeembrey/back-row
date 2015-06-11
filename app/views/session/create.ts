@@ -41,10 +41,14 @@ class CreateSessionView extends React.Component<{ app: Application }, CreateSess
 
   render () {
     if (this.state.error) {
+      this.props.app.pageActionCreators.title('Failed to create session')
+
       return React.createElement('span', {
         className: FAILED_CREATE_STYLE.className
-      }, 'Failed to create a new session')
+      }, 'Failed to create a new movie session')
     }
+
+    this.props.app.pageActionCreators.title('Creating session...')
 
     return React.createElement(Spinner)
   }
