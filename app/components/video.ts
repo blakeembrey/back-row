@@ -1,8 +1,8 @@
 import React = require('react')
 import { create } from 'react-free-style'
-import videojs = require('video.js')
+import videojs  from '../lib/videojs'
 
-const TIME_ACCURACY = 50
+const TIME_ACCURACY = 300
 
 const Style = create()
 
@@ -14,7 +14,11 @@ const VIDEO_WRAPPER_STYLE = Style.registerStyle({
 
   '.video-js': {
     flex: 1,
-    WebkitFlex: 1
+    WebkitFlex: 1,
+
+    '&:focus': {
+      outline: 0
+    }
   },
 
   '.vjs-poster': {
@@ -118,24 +122,34 @@ class Video extends React.Component<VideoProps, VideoState> {
       preload: 'auto',
       poster: poster,
       width: '100%',
-      height: '100%'
+      height: '100%',
+      plugins: {
+        hotkeys: {}
+      }
     })
 
+    // Use player state since "play" and "pause" emits erroneously.
     const playStateChangeHandler = () => {
-      // Use player state since "play" and "pause" emits erroneously.
-      this.setAndEmitState({ play: !player.paused(), time: this.getTime() })
+      this.setAndEmitState({ play: !player.paused() })
     }
 
     player.on('play', playStateChangeHandler)
     player.on('pause', playStateChangeHandler)
-    player.on('seeking', playStateChangeHandler)
+
+    player.on('seeking', () => {
+      this.setAndEmitState({ time: this.getTime() })
+    })
 
     player.on('canplaythrough', () => {
-      this.setAndEmitState({ ready: 'ready', time: this.getTime() })
+      this.setAndEmitState({ ready: 'ready' })
     })
 
     player.on('waiting', () => {
-      this.setAndEmitState({ ready: 'waiting', time: this.getTime() })
+      this.setAndEmitState({ ready: 'waiting' })
+    })
+
+    player.on('timeupdate', () => {
+      this.setState({ time: this.getTime() })
     })
 
     this.updatePlayerState(this.state)

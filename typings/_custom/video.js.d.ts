@@ -42,5 +42,9 @@ declare module 'video.js' {
 
   function videojs (id: any, options?: VideoJsOptions, ready?: () => any): VideoJsPlayer;
 
+  module videojs {
+    export function plugin (id: string, handler: (opts?: any) => any): void;
+  }
+
   export = videojs;
 }
