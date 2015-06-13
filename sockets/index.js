@@ -71,7 +71,7 @@ session.on('connection', function (socket) {
       session.setState(socket, state)
     }
 
-    return cb(true)
+    return cb(session.getState(socket))
   })
 
   /**
@@ -84,7 +84,7 @@ session.on('connection', function (socket) {
       session.setOptions(socket, options)
     }
 
-    return cb(true)
+    return cb(session.getOptions(socket))
   })
 
   /**
@@ -94,7 +94,7 @@ session.on('connection', function (socket) {
     var session = SESSIONS.get(sessionId)
 
     if (!session) {
-      return cb(false)
+      return cb()
     }
 
     USERS.set(socket.id, session)
@@ -102,7 +102,7 @@ session.on('connection', function (socket) {
     debug('join session', session.id, socket.id)
 
     return session.join(socket, function (sessionId, data) {
-      return cb(true, data)
+      return cb(data)
     })
   })
 

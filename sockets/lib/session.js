@@ -13,16 +13,17 @@ module.exports = Session
 var DEFAULT_PLAY_STATE = false
 
 /**
- * Accuracy of the times from clients.
+ * Keep time accuracy between clients.
  */
-var TIME_ACCURACY = 100
+var TIME_ACCURACY = 50
 
 /**
  * Store possible session states.
  */
 var READY_STATE = {
   READY: 'ready',
-  WAITING: 'waiting'
+  WAITING: 'waiting',
+  JOINED: 'joined'
 }
 
 /**
@@ -38,7 +39,8 @@ function Session (options) {
 
   this.lastKnownTime = 0
   this.lastKnownSource = undefined
-  this.lastKnownTimestamp = Date.now()}
+  this.lastKnownTimestamp = Date.now()
+}
 
 /**
  * Emit state to a socket instance.
@@ -54,7 +56,7 @@ Session.prototype.emitState = function (socket) {
 /**
  * Emit the current state to all sockets.
  */
-Session.prototype.emitPlayState = function (currentSocket) {
+Session.prototype.emitStateAll = function (currentSocket) {
   this.all().forEach(function (socket) {
     // Enable skipping a passed in socket.
     if (currentSocket === socket) {
@@ -99,17 +101,22 @@ Session.prototype.getPlayState = function (socket) {
  */
 Session.prototype.setState = function (socket, state) {
   // Emit joined state to other sockets.
-  if (state.ready == null) {
+  if (state.ready === READY_STATE.JOINED) {
     this.lastKnownSource = socket.id
-    this.emitPlayState(socket)
+    this.emitStateAll(socket)
 
     return
   }
 
   var currentTime = this.getTime()
-  var timeChanged = currentTime < state.time - TIME_ACCURACY || currentTime > state.time + TIME_ACCURACY
-  var playStateChanged = this.getPlayState(socket) !== state.play
-  var readyStateChanged = this.getReadyState(socket) !== state.ready
+
+  // Always keep the last know timestamp in check.
+  this.lastKnownTime = currentTime
+  this.lastKnownTimestamp = Date.now()
+
+  var timeChanged = state.time != null && (currentTime < state.time - TIME_ACCURACY || currentTime > state.time + TIME_ACCURACY)
+  var playStateChanged = state.play != null && this.getPlayState(socket) !== state.play
+  var readyStateChanged = state.ready != null && this.getReadyState(socket) !== state.ready
 
   debug('set state', socket.id, state)
 
@@ -122,15 +129,23 @@ Session.prototype.setState = function (socket, state) {
 
   // Emit the current state back to the socket when change is invalid.
   if (!waiting) {
-    this.playState = state.play
-    this.lastKnownTime = state.time
-    this.lastKnownTimestamp = Date.now()
+    // Update the current time when play state changes.
+    if (state.play != null) {
+      this.playState = state.play
+    }
+
+    if (state.time != null) {
+      this.lastKnownTime = state.time
+    }
+
     this.lastKnownSource = socket.id
   }
 
-  this.readyStates[socket.id] = state.ready
+  if (state.ready != null) {
+    this.readyStates[socket.id] = state.ready
+  }
 
-  this.emitPlayState(waiting ? undefined : socket)
+  this.emitStateAll(socket)
 }
 
 /**
@@ -197,11 +212,15 @@ Session.prototype.getReadyState = function (socket) {
  * Join the session.
  */
 Session.prototype.join = function (socket, cb) {
+  // Update the time before join.
+  this.lastKnownTime = this.getTime()
+  this.lastKnownTimestamp = Date.now()
+
   // Add the socket after getting the current time.
   this.sockets[socket.id] = socket
 
   // Set the initial socket state to pause other clients.
-  this.setState(socket, { ready: null })
+  this.setState(socket, { ready: READY_STATE.JOINED })
 
   // Send set up state back to the client.
   cb(this.id, {
@@ -223,14 +242,14 @@ Session.prototype.leave = function (socket) {
 
   // Reset playback if no one is watching.
   if (this.all().length === 0) {
-    this.playState = DEFAULT_PLAY_STATE
     this.lastKnownTime = this.getTime()
     this.lastKnownTimestamp = Date.now()
+    this.playState = DEFAULT_PLAY_STATE
     this.lastKnownSource = undefined
   }
 
   // Update state when leaving.
-  this.emitPlayState()
+  this.emitStateAll()
 }
 
 /**

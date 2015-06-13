@@ -42,11 +42,11 @@ class WatchView extends React.Component<WatchProps, {}> {
   render () {
     const { torrents, movie, onChange, session, latency, app } = this.props
     const { options, state } = session
-    const { time, play, ready, waiting } = state
+    const { time, play, ready, waiting, updating } = state
     const torrent = torrents[options.quality]
     const peerCount = state.peers.length
 
-    let statusText = `Watching ${movie.title}`
+    let statusText = (updating ? '(Updating) ' : '') + `Watching ${movie.title}`
 
     if (peerCount) {
       statusText += ` with ${peerCount} ${peerCount === 1 ? 'peer' : 'peers'}`
@@ -96,6 +96,8 @@ export default createContainer(Style.component(WatchView), {
     }
   },
   pending () {
+    this.app.pageActionCreators.title('Loading movie...')
+
     return React.createElement(Spinner)
   }
 })

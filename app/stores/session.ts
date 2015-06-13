@@ -4,7 +4,6 @@ import SessionConstants from '../constants/session'
 
 export interface SessionState {
   connection?: any
-  latency?: number[]
   sessions?: {
     [sessionId: string]: Session
   }
@@ -24,6 +23,7 @@ interface SessionStateOptions {
 interface SessionStateState {
   time: number
   play: boolean
+  updating: boolean
   ready: string
   waiting: number
   timestamp: number
@@ -34,7 +34,6 @@ interface SessionStateState {
 export default class SessionStore extends Store<SessionState> {
 
   state: SessionState = {
-    latency: [],
     sessions: {}
   }
 
@@ -42,8 +41,7 @@ export default class SessionStore extends Store<SessionState> {
     setConnection: SessionConstants.CREATE_CONNECTION,
     joinedSession: [SessionConstants.JOIN_SESSION, SessionConstants.CREATE_SESSION],
     leftSession: SessionConstants.LEAVE_SESSION,
-    updateSessionState: SessionConstants.UPDATE_SESSION_STATE,
-    updateLatency: SessionConstants.UPDATE_LATENCY
+    updateSessionState: SessionConstants.UPDATE_SESSION_STATE
   }
 
   getConnection () {
@@ -91,32 +89,11 @@ export default class SessionStore extends Store<SessionState> {
   updateSessionState (sessionId: string, newState: SessionStateState) {
     const currentSession = this.state.sessions[sessionId]
 
-    if (!currentSession || currentSession.state.timestamp > newState.timestamp) {
-      return
-    }
-
     const state = extend(currentSession.state, newState)
 
     this.state.sessions[sessionId] = <Session> extend(currentSession, { state })
 
     this.hasChanged()
-  }
-
-  updateLatency (latency: number) {
-    this.state.latency.unshift(latency)
-    this.state.latency.length = 5 // Track the last 5 latency counts.
-
-    this.hasChanged()
-  }
-
-  getLatency () {
-    const { latency } = this.state
-
-    var sum = latency.reduce((sum, value) => {
-      return sum + value
-    }, 0)
-
-    return Math.ceil(sum / latency.length)
   }
 
 }

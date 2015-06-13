@@ -2,7 +2,7 @@ import React = require('react')
 import { create } from 'react-free-style'
 import videojs  from '../lib/videojs'
 
-const TIME_ACCURACY = 300
+const TIME_ACCURACY = 50
 
 const Style = create()
 
@@ -57,7 +57,10 @@ class Video extends React.Component<VideoProps, VideoState> {
   }
 
   hasStateChanged (newState: VideoState) {
-    return this.getTime() !== newState.time ||
+    var currentTime = this.getTime()
+
+    return currentTime < newState.time - TIME_ACCURACY ||
+      currentTime > newState.time + TIME_ACCURACY ||
       this.state.ready !== newState.ready ||
       this.state.play !== newState.play
   }
@@ -66,7 +69,7 @@ class Video extends React.Component<VideoProps, VideoState> {
     const currentTime = this.getTime()
     const { time, play } = state
 
-    if (currentTime < time - TIME_ACCURACY || currentTime > time + TIME_ACCURACY) {
+    if (currentTime !== time) {
       this.player.currentTime(time / 1000)
     }
 
@@ -80,6 +83,7 @@ class Video extends React.Component<VideoProps, VideoState> {
   setAndEmitState (state: VideoState) {
     const previousState = this.state
 
+    // Emit only the changed state on toggle.
     this.setState(state, () => {
       if (this.hasStateChanged(previousState)) {
         this.props.onChange(this.state)
@@ -130,7 +134,7 @@ class Video extends React.Component<VideoProps, VideoState> {
 
     // Use player state since "play" and "pause" emits erroneously.
     const playStateChangeHandler = () => {
-      this.setAndEmitState({ play: !player.paused() })
+      this.setAndEmitState({ play: !player.paused(), time: this.getTime() })
     }
 
     player.on('play', playStateChangeHandler)
@@ -141,11 +145,14 @@ class Video extends React.Component<VideoProps, VideoState> {
     })
 
     player.on('canplaythrough', () => {
-      this.setAndEmitState({ ready: 'ready' })
+      this.setAndEmitState({ ready: 'ready', time: this.getTime() })
     })
 
     player.on('waiting', () => {
-      this.setAndEmitState({ ready: 'waiting' })
+      // Emit waiting only when needed.
+      if (player.paused()) {
+        this.setAndEmitState({ ready: 'waiting' })
+      }
     })
 
     player.on('timeupdate', () => {

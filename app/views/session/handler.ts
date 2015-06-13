@@ -29,8 +29,6 @@ class SessionView extends React.Component<SessionProps, {}> {
   render () {
     const { app, session, latency } = this.props
 
-    app.pageActionCreators.title('Watching session...')
-
     return React.createElement(Watch, {
       session,
       latency,
@@ -52,9 +50,6 @@ export default Style.component(createContainer(SessionView, {
       const { sessionId } = this.context.router.getCurrentParams()
 
       return this.app.sessionStore.getSession(sessionId)
-    },
-    latency () {
-      return this.app.sessionStore.getLatency()
     }
   },
   pending () {

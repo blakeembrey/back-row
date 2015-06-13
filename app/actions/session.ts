@@ -2,12 +2,19 @@ import io = require('socket.io-client')
 import extend = require('xtend')
 import { ActionCreators } from 'marty'
 import SessionConstants from '../constants/session'
+import { diff } from '../utils/common'
 
 import { BASE_URL } from '../utils/config'
 
 interface SessionCreateOpts {
   imdbId: string
   quality: string
+}
+
+interface VideoState {
+  play: boolean
+  ready: string
+  time: number
 }
 
 class SessionActionCreators extends ActionCreators {
@@ -56,8 +63,8 @@ class SessionActionCreators extends ActionCreators {
 
       this.dispatch(SessionConstants.JOIN_SESSION_STARTING, sessionId)
 
-      connection.emit('join', sessionId, (joined: boolean, data: any) => {
-        if (joined) {
+      connection.emit('join', sessionId, (data: any) => {
+        if (data) {
           this.dispatch(SessionConstants.JOIN_SESSION, sessionId, data)
         } else {
           this.dispatch(SessionConstants.JOIN_SESSION_FAILED, sessionId)
@@ -82,19 +89,30 @@ class SessionActionCreators extends ActionCreators {
     })
   }
 
-  updateState (sessionId: string, state: { play: boolean; ready: string; time: number }) {
+  updateState (sessionId: string, newState: VideoState) {
     return new Promise((resolve: () => void) => {
       const { connection } = this.app.sessionStore.state
+      const currentState = this.app.sessionStore.state.sessions[sessionId].state
 
       if (!connection) {
         return resolve()
       }
 
-      connection.emit('state', sessionId, state, () => resolve())
+      // Emit the state diff since it can be handled faster by the server.
+      const state = diff(currentState, newState)
 
       this.dispatch(SessionConstants.UPDATE_SESSION_STATE, sessionId, extend(state, {
-        source: connection.id
+        play: false,
+        updating: true
       }))
+
+      connection.emit('state', sessionId, state, (state: any) => {
+        this.dispatch(SessionConstants.UPDATE_SESSION_STATE, sessionId, extend(state, {
+          updating: false
+        }))
+
+        return resolve()
+      })
     })
   }
 
