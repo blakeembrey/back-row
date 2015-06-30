@@ -51,8 +51,8 @@ function removeTorrent (torrent, cb) {
  * @param  {Object} torrent
  * @return {Number}
  */
-function torrentLength (torrent) {
-  return torrent.swarm.downloaded
+function torrentLength (engine) {
+  return engine.torrent ? engine.torrent.length : 0
 }
 
 /**
