@@ -8,7 +8,7 @@
 
 ### Configuration
 
-```
+```sh
 export TRAKT_TV_CLIENT_ID=abc
 export TRAKT_TV_CLIENT_SECRET=123
 export TORRENT_CACHE_LIMIT=10000000000
@@ -16,7 +16,7 @@ export TORRENT_CACHE_LIMIT=10000000000
 
 ## Developers
 
-```
+```sh
 # Clone the repository locally
 git clone https://github.com/blakeembrey/back-row.git
 
@@ -25,12 +25,14 @@ cd back-row && npm install
 
 # Run development server
 gulp server
+# open http://localhost:8080
 
 # Build the output directory
 gulp build
 
 # Start application
 npm start
+# open http://localhost:3000
 ```
 
 ## License
