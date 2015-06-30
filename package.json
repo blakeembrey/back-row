@@ -47,6 +47,7 @@
     "mkdirp": "^0.5.1",
     "moment": "^2.9.0",
     "normalize.css": "^3.0.2",
+    "parse-torrent": "^5.2.0",
     "popsicle": "^0.5.10",
     "popsicle-constants": "^0.1.0",
     "popsicle-resolve": "0.0.2",

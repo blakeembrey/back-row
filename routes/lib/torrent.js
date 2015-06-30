@@ -6,6 +6,7 @@ var readTorrent = require('read-torrent')
 var torrentStream = require('torrent-stream')
 var debug = require('debug')('back-row:torrent')
 var mkdirp = require('mkdirp')
+var parseTorrent = require('parse-torrent')
 
 var TORRENT_PATH = process.env.TORRENT_CACHE_PATH || join(os.tmpDir(), 'back-row')
 var TORRENT_INFO_HASH_PATH = join(TORRENT_PATH, 'info-hash')
@@ -136,10 +137,10 @@ function createTorrent (torrent, done) {
         return done(err)
       }
 
-      var path = join(TORRENT_INFO_HASH_PATH, engine.infoHash)
-      var info = JSON.stringify(engine.torrent)
+      var buf = parseTorrent.toTorrentFile(engine.torrent)
+      var path = join(TORRENT_INFO_HASH_PATH, engine.infoHash + '.torrent')
 
-      return fs.writeFile(path, info, function (err) {
+      return fs.writeFile(path, buf, function (err) {
         return done(err, engine)
       })
     })
@@ -194,9 +195,13 @@ function logError (err) {
     return // Ignore rebooting when hashes are empty.
   }
 
-  fs.readdirSync(TORRENT_INFO_HASH_PATH).forEach(function (hash) {
+  var hashes = fs.readdirSync(TORRENT_INFO_HASH_PATH)
+
+  console.log('Found ' + hashes.length + ' hashes in ' + TORRENT_INFO_HASH_PATH)
+
+  hashes.forEach(function (hash) {
     var filename = join(TORRENT_INFO_HASH_PATH, hash)
-    var torrent = JSON.parse(fs.readFileSync(filename, 'utf8'))
+    var torrent = parseTorrent(fs.readFileSync(filename))
 
     console.log('Restarting torrent stream:', torrent.name)
 
