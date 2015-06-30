@@ -1,11 +1,15 @@
-var fs = require('fs')
 var os = require('os')
 var join = require('path').join
+var basename = require('path').basename
 var lruCache = require('lru-cache')
 var readTorrent = require('read-torrent')
 var torrentStream = require('torrent-stream')
+var glob = require('glob')
+var debug = require('debug')('back-row:torrent')
 
-var TORRENT_PATH = join(os.tmpDir(), 'back-row-info-hashes')
+var TORRENT_PATH = process.env.TORRENT_CACHE_PATH || join(os.tmpDir(), 'torrent-stream')
+var TORRENT_STREAM_NAME = basename(TORRENT_PATH)
+var TORRENT_STREAM_PATH = join(TORRENT_PATH, '..')
 
 /**
  * Create a torrent cache.
@@ -13,7 +17,7 @@ var TORRENT_PATH = join(os.tmpDir(), 'back-row-info-hashes')
  * @type {LRUCache}
  */
 var TORRENT_CACHE = lruCache({
-  max: process.env.TORRENT_CACHE_LIMIT || 10 * 1000 * 1000 * 1000,
+  max: process.env.TORRENT_CACHE_LIMIT || 10 * 1000 * 1000 * 1000, // 10GB
   length: torrentLength,
   dispose: disposeTorrent
 })
@@ -23,7 +27,7 @@ var TORRENT_CACHE = lruCache({
  *
  * @type {LRUCache}
  */
-var URI_CACHE = lruCache(100)
+var URI_CACHE = lruCache(100) /* { [infoHash: string]: engine } */
 
 /**
  * Dispose of the torrent.
@@ -71,7 +75,9 @@ function torrent (uri, done) {
     return done(new Error('Unknown torrent specified'))
   }
 
-  return createTorrentFromUri(uri, done)
+  debug('torrent', uri)
+
+  return createTorrentFromLocation(uri, done)
 }
 
 /**
@@ -80,13 +86,15 @@ function torrent (uri, done) {
  * @param {String}   uri
  * @param {Function} done
  */
-function createTorrentFromUri (uri, done) {
+function createTorrentFromLocation (uri, done) {
   function next (err, torrent) {
     if (err) {
       return done(err)
     }
 
-    URI_CACHE.set(uri, torrent)
+    if (/https?:\/\//i.test(uri)) {
+      URI_CACHE.set(uri, torrent)
+    }
 
     return createTorrent(torrent, done)
   }
@@ -106,21 +114,6 @@ function createTorrentFromUri (uri, done) {
  */
 function createTorrent (torrent, done) {
   var engine = TORRENT_CACHE.get(torrent.infoHash)
-  var exists = !!engine
-
-  function next (engine) {
-    // Avoid unnecessary torrent persistence creation.
-    if (exists) {
-      return done(null, engine)
-    }
-
-    var path = join(TORRENT_PATH, engine.infoHash)
-    var info = JSON.stringify(engine.torrent)
-
-    return fs.writeFile(path, info, function (err) {
-      return done(err, engine)
-    })
-  }
 
   if (!engine) {
     engine = createEngine(torrent)
@@ -129,11 +122,11 @@ function createTorrent (torrent, done) {
   }
 
   if (engine.torrent) {
-    return next(engine)
+    return done(null, engine)
   }
 
   return engine.on('ready', function () {
-    return next(engine)
+    return done(null, engine)
   })
 }
 
@@ -144,7 +137,10 @@ function createTorrent (torrent, done) {
  * @return {Object}
  */
 function createEngine (uri) {
-  var engine = torrentStream(uri)
+  var engine = torrentStream(uri, {
+    tmp: TORRENT_STREAM_PATH,
+    name: TORRENT_STREAM_NAME
+  })
 
   engine.on('interested', function () { engine.swarm.resume() })
   engine.on('uninterested', function () { engine.swarm.pause() })
@@ -164,26 +160,19 @@ function logError (err) {
 }
 
 /**
- * Create and/or read existing torrent files into application.
+ * Create and/or read existing torrent files into application. This is an
+ * in-memory solution to keeping the cache within the defined limit.
  */
 (function () {
-  var stat;
+  var torrents = glob.sync('*.torrent', {
+    cwd: TORRENT_PATH
+  })
 
-  try {
-    stat = fs.statSync(TORRENT_PATH)
-  } catch (e) {}
-
-  if (!stat || !stat.isDirectory()) {
-    return fs.mkdirSync(TORRENT_PATH)
+  if (torrents.length) {
+    console.log('Restarting ' + torrents.length + ' torrent streams from ' + TORRENT_PATH)
   }
 
-  // Load existing torrent hashes.
-  fs.readdirSync(TORRENT_PATH).forEach(function (hash) {
-    var file = join(TORRENT_PATH, hash)
-    var torrent = JSON.parse(fs.readFileSync(file, 'utf8'))
-
-    console.log('Restarting torrent stream:', torrent.name)
-
-    return createTorrent(torrent, logError)
+  torrents.forEach(function (filename) {
+    return createTorrentFromLocation(join(TORRENT_PATH, filename), logError)
   })
 })()

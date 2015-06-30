@@ -39,6 +39,7 @@
     "es6-promise": "^2.0.1",
     "express": "^4.10.1",
     "font-awesome": "^4.3.0",
+    "glob": "^5.0.12",
     "gulp": "^3.8.9",
     "invariant": "^2.0.0",
     "lru-cache": "^2.5.0",
