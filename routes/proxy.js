@@ -9,5 +9,5 @@ app.use('/yts', proxy([
 ]))
 
 app.use('/trakt', proxy([
-  'https://api.trakt.tv/'
+  'https://api-v2launch.trakt.tv/'
 ]))
