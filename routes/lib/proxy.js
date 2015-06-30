@@ -1,4 +1,4 @@
-var url = require('url')
+var resolve = require('url').resolve
 var extend = require('xtend')
 var popsicle = require('popsicle')
 var status = require('popsicle-status')
@@ -59,16 +59,21 @@ function proxy (uris, opts) {
     var response = RESPONSE_CACHE.get(key)
 
     if (!response) {
-      response = handle(uris, path, req).then(function (opts) {
-        uris = uris.slice(opts.index).concat(uris.slice(0, opts.index))
+      response = handle(uris, path, req)
+        .then(function (data) {
+          uris = uris.slice(data.index).concat(uris.slice(0, data.index))
 
-        return opts
-      })
+          return data
+        })
 
       // Cache the API request for future users.
       if (opts.methods.indexOf(req.method)) {
-        RESPONSE_CACHE.set(key,  response)
+        RESPONSE_CACHE.set(key, response)
       }
+    } else {
+      response.then(function (data) {
+        debug('response (from cache)', data.url, data.status)
+      })
     }
 
     return respond(response)
@@ -91,10 +96,10 @@ function handle (uris, path, req, index) {
     return Promise.reject(new Error('Load failed'))
   }
 
-  var uri = url.resolve(uris[0], path)
+  var url = resolve(uris[0], path)
 
   return popsicle({
-    url: uri,
+    url: url,
     method: req.method,
     headers: req.headers,
     body: req,
@@ -103,7 +108,7 @@ function handle (uris, path, req, index) {
   })
     .use(function (req) {
       req.after(function (res) {
-        debug('response', req.fullUrl(), res.status)
+        debug('response', url, res.status)
       })
     })
     .use(status(200, 499))
@@ -112,10 +117,11 @@ function handle (uris, path, req, index) {
         body: res.body,
         status: res.status,
         headers: res.get(),
-        index: index
+        index: index,
+        url: url
       }
     })
-    .catch(function (err) {
-      return resolve(handle(uris, path, req, index + 1))
+    .catch(function () {
+      return handle(uris, path, req, index + 1)
     })
 }
