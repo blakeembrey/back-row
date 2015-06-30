@@ -3,6 +3,7 @@ var extend = require('xtend')
 var popsicle = require('popsicle')
 var status = require('popsicle-status')
 var lruCache = require('lru-cache')
+var debug = require('debug')('back-row:proxy')
 
 /**
  * Export the proxy generator.
@@ -27,8 +28,6 @@ function proxy (uris, opts) {
     maxAge: opts.maxAge
   })
 
-  // TODO: Build url fallbacks (multiple api urls) and a secondary cache for
-  // when all urls are down.
   return function (req, res, next) {
     var path = req.url.substr(1)
     var key = req.method + ':' + path
@@ -102,6 +101,11 @@ function handle (uris, path, req, index) {
     raw: true,
     encoding: 'buffer'
   })
+    .use(function (req) {
+      req.after(function (res) {
+        debug('response', req.fullUrl(), res.status)
+      })
+    })
     .use(status(200, 499))
     .then(function (res) {
       return {
