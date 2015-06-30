@@ -142,6 +142,7 @@ function createEngine (uri) {
     name: TORRENT_STREAM_NAME
   })
 
+  engine.on('error', logError)
   engine.on('interested', function () { engine.swarm.resume() })
   engine.on('uninterested', function () { engine.swarm.pause() })
 
