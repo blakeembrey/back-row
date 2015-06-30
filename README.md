@@ -12,7 +12,7 @@
 export TRAKT_TV_CLIENT_ID=abc
 export TRAKT_TV_CLIENT_SECRET=123
 export TORRENT_CACHE_LIMIT=10000000000 # Defaults to 10GB
-export TORRENT_CACHE_PATH=/tmp/torrents # Defaults to `os.tmpdir() + '/torrent-stream'`
+export TORRENT_CACHE_PATH=/tmp/torrent-stream # Defaults to `os.tmpdir() + '/torrent-stream'`
 ```
 
 ## Developers
