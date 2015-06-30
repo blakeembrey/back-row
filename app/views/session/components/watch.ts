@@ -66,7 +66,7 @@ class WatchView extends React.Component<WatchProps, {}> {
       React.createElement(
         Video,
         {
-          src: BASE_URL + '/torrent/stream?uri=' + encodeURIComponent(btoa(torrent.url)),
+          src: BASE_URL + '/torrent/stream/' + encodeURIComponent(btoa(torrent.url)),
           poster: movie.backgroundImage,
           onChange: onChange,
           className: VIDEO_STYLE.className,

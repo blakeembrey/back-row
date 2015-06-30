@@ -5,8 +5,8 @@ var rangeParser = require('range-parser')
 var torrent = require('./lib/torrent')
 var app = module.exports = new express.Router()
 
-app.get('/stream', function (req, res, next) {
-  var uri = new Buffer(req.query.uri, 'base64').toString()
+app.get('/stream/:hash', function (req, res, next) {
+  var uri = new Buffer(req.params.hash, 'base64').toString()
 
   return torrent(uri, function (err, engine) {
     if (err) {
