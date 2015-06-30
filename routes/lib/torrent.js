@@ -1,15 +1,14 @@
+var fs = require('fs')
 var os = require('os')
 var join = require('path').join
-var basename = require('path').basename
 var lruCache = require('lru-cache')
 var readTorrent = require('read-torrent')
 var torrentStream = require('torrent-stream')
-var glob = require('glob')
 var debug = require('debug')('back-row:torrent')
+var mkdirp = require('mkdirp')
 
-var TORRENT_PATH = process.env.TORRENT_CACHE_PATH || join(os.tmpDir(), 'torrent-stream')
-var TORRENT_STREAM_NAME = basename(TORRENT_PATH)
-var TORRENT_STREAM_PATH = join(TORRENT_PATH, '..')
+var TORRENT_PATH = process.env.TORRENT_CACHE_PATH || join(os.tmpDir(), 'back-row')
+var TORRENT_INFO_HASH_PATH = join(TORRENT_PATH, 'info-hash')
 
 /**
  * Create a torrent cache.
@@ -45,8 +44,12 @@ function disposeTorrent (key, torrent) {
  * @param {Object}   torrent
  * @param {Function} cb
  */
-function removeTorrent (torrent, cb) {
-  torrent.remove(cb)
+function removeTorrent (engine, cb) {
+  engine.remove(function (rmError) {
+    fs.unlink(join(TORRENT_INFO_HASH_PATH, engine.infoHash), function (unlinkError) {
+      cb(rmError || unlinkError)
+    })
+  })
 }
 
 /**
@@ -114,6 +117,7 @@ function createTorrentFromLocation (uri, done) {
  */
 function createTorrent (torrent, done) {
   var engine = TORRENT_CACHE.get(torrent.infoHash)
+  var exists = !!engine
 
   if (!engine) {
     engine = createEngine(torrent)
@@ -121,12 +125,32 @@ function createTorrent (torrent, done) {
     TORRENT_CACHE.set(engine.infoHash, engine)
   }
 
+  function next (engine) {
+    // Avoid unnecessary torrent persistence creation.
+    if (exists) {
+      return done(null, engine)
+    }
+
+    return mkdirp(TORRENT_INFO_HASH_PATH, function (err) {
+      if (err) {
+        return done(err)
+      }
+
+      var path = join(TORRENT_INFO_HASH_PATH, engine.infoHash)
+      var info = JSON.stringify(engine.torrent)
+
+      return fs.writeFile(path, info, function (err) {
+        return done(err, engine)
+      })
+    })
+  }
+
   if (engine.torrent) {
-    return done(null, engine)
+    return next(engine)
   }
 
   return engine.on('ready', function () {
-    return done(null, engine)
+    return next(engine)
   })
 }
 
@@ -138,8 +162,7 @@ function createTorrent (torrent, done) {
  */
 function createEngine (uri) {
   var engine = torrentStream(uri, {
-    tmp: TORRENT_STREAM_PATH,
-    name: TORRENT_STREAM_NAME
+    tmp: TORRENT_PATH
   })
 
   engine.on('error', logError)
@@ -165,13 +188,18 @@ function logError (err) {
  * in-memory solution to keeping the cache within the defined limit.
  */
 (function () {
-  var torrents = glob.sync('*.torrent', {
-    cwd: TORRENT_PATH
-  })
+  try {
+    fs.statSync(TORRENT_INFO_HASH_PATH)
+  } catch (e) {
+    return // Ignore rebooting when hashes are empty.
+  }
 
-  console.log('Found ' + torrents.length + ' torrent streams from ' + TORRENT_PATH)
+  fs.readdirSync(TORRENT_INFO_HASH_PATH).forEach(function (hash) {
+    var filename = join(TORRENT_INFO_HASH_PATH, hash)
+    var torrent = JSON.parse(fs.readFileSync(filename, 'utf8'))
 
-  torrents.forEach(function (filename) {
-    return createTorrentFromLocation(join(TORRENT_PATH, filename), logError)
+    console.log('Restarting torrent stream:', torrent.name)
+
+    return createTorrent(torrent, logError)
   })
 })()
