@@ -5,7 +5,7 @@ import { yts } from '../utils/request'
 class MoviesQueries extends Queries {
 
   getPage (from: number, limit: number) {
-    var page = Math.floor((from + limit) / limit)
+    var page = Math.ceil((from + limit) / limit)
 
     this.dispatch(MoviesConstants.RECIEVE_YTS_PAGE_STARTING, page)
 
