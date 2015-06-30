@@ -169,9 +169,7 @@ function logError (err) {
     cwd: TORRENT_PATH
   })
 
-  if (torrents.length) {
-    console.log('Restarting ' + torrents.length + ' torrent streams from ' + TORRENT_PATH)
-  }
+  console.log('Found ' + torrents.length + ' torrent streams from ' + TORRENT_PATH)
 
   torrents.forEach(function (filename) {
     return createTorrentFromLocation(join(TORRENT_PATH, filename), logError)
