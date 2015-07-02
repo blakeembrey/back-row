@@ -17,7 +17,7 @@ var LIST_STYLE = Style.registerStyle({
   WebkitFlexDirection: 'row',
   justifyContent: 'space-between',
   WebkitJustifyContent: 'space-between'
-}, grid(10))
+}, grid(5))
 
 var LIST_CONTAINER_STYLE = Style.registerStyle({
   flex: 1,

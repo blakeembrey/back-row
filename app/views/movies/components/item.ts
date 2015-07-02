@@ -10,8 +10,8 @@ const WIDTH = ~~((138 * 0.95) + BORDER)
 const HEIGHT = ~~((207 * 0.95) + BORDER)
 
 const ITEM_CONTAINER_STYLE = Style.registerStyle({
-  paddingTop: 10,
-  paddingBottom: 10
+  paddingTop: 5,
+  paddingBottom: 5
 })
 
 const TITLE_STYLE = Style.registerStyle({
