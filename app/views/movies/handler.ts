@@ -8,9 +8,11 @@ import MovieItem from './components/item'
 import { grid } from '../../utils/styles'
 import App from '../../app'
 
-var Style = create()
+const PAGE_SIZE = 40
 
-var LIST_STYLE = Style.registerStyle({
+const Style = create()
+
+const LIST_STYLE = Style.registerStyle({
   flexWrap: 'wrap',
   WebkitFlexWrap: 'wrap',
   flexDirection: 'row',
@@ -19,7 +21,7 @@ var LIST_STYLE = Style.registerStyle({
   WebkitJustifyContent: 'space-between'
 }, grid(5))
 
-var LIST_CONTAINER_STYLE = Style.registerStyle({
+const LIST_CONTAINER_STYLE = Style.registerStyle({
   flex: 1,
   WebkitFlex: 1,
   alignItems: 'center',
@@ -53,7 +55,7 @@ class MoviesView extends React.Component<MoviesProps, {}> {
   }
 
   render () {
-    var length = this.props.movies.length
+    const length = this.props.movies.length
 
     this.props.app.pageActionCreators.title('Movies')
 
@@ -64,20 +66,19 @@ class MoviesView extends React.Component<MoviesProps, {}> {
         List,
         {
           type: 'uniform',
+          pageSize: PAGE_SIZE,
           itemsRenderer: (items: any[], ref: string) => {
             return React.createElement('div', { className: LIST_STYLE.className, ref }, items)
           },
           itemRenderer: (index: number, key: any) => {
-            var movie = this.props.movies[index]
+            const movie = this.props.movies[index]
 
-            if (index >= length) {
-              if (!this.loading) {
-                this.loading = true
+            if (index === length - 1 && !this.loading) {
+              this.loading = true
 
-                setImmediate(() => this.props.app.moviesQueries.getPage(this.props.count, 50))
-              }
-
-              return null
+              setImmediate(() => {
+                this.props.app.moviesStore.getMovies(this.props.count, PAGE_SIZE)
+              })
             }
 
             return React.createElement(MovieItem, {
@@ -87,7 +88,7 @@ class MoviesView extends React.Component<MoviesProps, {}> {
               cover: movie.cover
             })
           },
-          length: length + (this.props.hasMore ? 1 : 0)
+          length: length
         }
       ),
       this.props.isLoading ? React.createElement(Spinner) : null
@@ -100,7 +101,7 @@ export default createContainer(Style.component(MoviesView), {
   listenTo: 'moviesStore',
   fetch: {
     movies () {
-      return this.app.moviesStore.getMovies()
+      return this.app.moviesStore.getMovies(0, PAGE_SIZE)
     },
     count () {
       return this.app.moviesStore.getCount()
@@ -111,5 +112,8 @@ export default createContainer(Style.component(MoviesView), {
     hasMore () {
       return this.app.moviesStore.hasMore()
     }
+  },
+  pending () {
+    return React.createElement(Spinner)
   }
 })

@@ -38,8 +38,18 @@ class MoviesStore extends Store<MoviesState> {
     startLoading: MoviesConstants.RECIEVE_YTS_PAGE_STARTING
   }
 
-  getMovies (): Summary[] {
-    return this.state.list.map((id) => this.state.summaries[id])
+  getMovies (offset: number, limit: number) {
+    return this.fetch({
+      id: `movies-${offset}-${limit}`,
+      locally: () => {
+        if (this.state.count >= offset + limit) {
+          return this.state.list.map((id) => this.state.summaries[id])
+        }
+      },
+      remotely: () => {
+        return this.app.moviesQueries.getPage(offset, limit)
+      }
+    })
   }
 
   getCount (): number {
