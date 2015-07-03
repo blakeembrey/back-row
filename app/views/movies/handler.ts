@@ -8,7 +8,7 @@ import MovieItem from './components/item'
 import { grid } from '../../utils/styles'
 import App from '../../app'
 
-const PAGE_SIZE = 40
+const PAGE_SIZE = 20
 
 const Style = create()
 
@@ -48,12 +48,6 @@ interface ScrollListProps {
 
 class MoviesView extends React.Component<MoviesProps, {}> {
 
-  loading = false
-
-  componentWillUpdate (nextProps: MoviesProps) {
-    this.loading = nextProps.isLoading
-  }
-
   render () {
     const length = this.props.movies.length
 
@@ -73,9 +67,7 @@ class MoviesView extends React.Component<MoviesProps, {}> {
           itemRenderer: (index: number, key: any) => {
             const movie = this.props.movies[index]
 
-            if (index === length - 1 && !this.loading) {
-              this.loading = true
-
+            if (index === length - 1) {
               setImmediate(() => {
                 this.props.app.moviesStore.getMovies(this.props.count, PAGE_SIZE)
               })
