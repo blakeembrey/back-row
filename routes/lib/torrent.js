@@ -132,8 +132,6 @@ function createTorrent (torrent, done) {
 
   if (!engine) {
     engine = createEngine(torrent)
-
-    TORRENT_CACHE.set(engine.infoHash, engine)
   }
 
   function next (engine) {
@@ -141,6 +139,8 @@ function createTorrent (torrent, done) {
     if (exists) {
       return done(null, engine)
     }
+
+    TORRENT_CACHE.set(engine.infoHash, engine)
 
     return mkdirp(TORRENT_INFO_HASH_PATH, function (err) {
       if (err) {
