@@ -29,7 +29,7 @@ module.exports = function (options) {
       new webpack.NoErrorsPlugin()
     ],
     debug: !options.production,
-    devtool: options.production ? 'source-map' : 'inline-source-map',
+    devtool: options.production ? 'source-map' : 'eval-source-map',
     resolve: {
       extensions: ['', '.ts', '.js', '.jsx']
     }
