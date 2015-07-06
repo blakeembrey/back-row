@@ -6,11 +6,6 @@ var Session = require('./lib/session')
 var session = io.of('/session')
 
 /**
- * Delete the session after 5 minutes.
- */
-var SESSION_TIMEOUT = 5 * 60 * 1000
-
-/**
  * Sesssion LRU cache options.
  */
 var SESSIONS_CACHE_OPTIONS = {
@@ -126,9 +121,4 @@ session.on('connection', function (socket) {
    */
   socket.on('leave', leave)
   socket.on('disconnect', leave)
-
-  /**
-   * Handle client pings.
-   */
-  socket.on('ping', process.nextTick.bind(process))
 })
