@@ -20,14 +20,14 @@ var TORRENT_CACHE = lruCache({
   max: process.env.TORRENT_CACHE_LIMIT || 10 * 1000 * 1000 * 1000, // 10GB
   length: torrentLength,
   dispose: disposeTorrent
-})
+}) /* { [infoHash: string]: engine } */
 
 /**
  * Keep track of the latest torrent downloads.
  *
  * @type {LRUCache}
  */
-var URI_CACHE = lruCache(100) /* { [infoHash: string]: engine } */
+var URI_CACHE = lruCache(100) /* { [uri: string]: torrent } */
 
 /**
  * Dispose of the torrent.
