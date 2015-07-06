@@ -57,7 +57,7 @@ class Video extends React.Component<VideoProps, VideoState> {
   }
 
   hasStateChanged (newState: VideoState) {
-    var currentTime = this.getTime()
+    const currentTime = this.getTime()
 
     return currentTime < newState.time - TIME_ACCURACY ||
       currentTime > newState.time + TIME_ACCURACY ||

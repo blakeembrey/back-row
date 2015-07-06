@@ -1,6 +1,6 @@
 import { createConstants } from 'marty'
 
-var SessionConstants = createConstants([
+export default createConstants([
   'CREATE_CONNECTION',
   'CREATE_SESSION',
   'JOIN_SESSION',
@@ -9,5 +9,3 @@ var SessionConstants = createConstants([
   'UPDATE_SESSION_OPTIONS',
   'UPDATE_LATENCY'
 ])
-
-export default SessionConstants

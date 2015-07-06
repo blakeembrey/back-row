@@ -20,7 +20,7 @@ export interface TorrentState {
   }
 }
 
-class TorrentStore extends Store<TorrentState> {
+export default class TorrentStore extends Store<TorrentState> {
 
   state: TorrentState = {
     movies: {}
@@ -68,5 +68,3 @@ class TorrentStore extends Store<TorrentState> {
   }
 
 }
-
-export default TorrentStore

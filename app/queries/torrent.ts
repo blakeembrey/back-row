@@ -2,7 +2,7 @@ import { Queries } from 'marty'
 import { yts } from '../utils/request'
 import TorrentConstants from '../constants/torrent'
 
-class TorrentQueries extends Queries {
+export default class TorrentQueries extends Queries {
 
   getMovie (imdbId: string) {
     this.dispatch(TorrentConstants.RECEIVE_YTS_QUERY_STARTING, imdbId)
@@ -13,5 +13,3 @@ class TorrentQueries extends Queries {
   }
 
 }
-
-export default TorrentQueries

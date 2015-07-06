@@ -21,7 +21,7 @@ export interface MovieState {
   }
 }
 
-class MovieStore extends Store<MovieState> {
+export default class MovieStore extends Store<MovieState> {
 
   state: MovieState = {
     movies: {}
@@ -62,5 +62,3 @@ class MovieStore extends Store<MovieState> {
   }
 
 }
-
-export default MovieStore

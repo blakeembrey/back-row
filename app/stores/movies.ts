@@ -20,7 +20,7 @@ export interface MoviesState {
   }
 }
 
-class MoviesStore extends Store<MoviesState> {
+export default class MoviesStore extends Store<MoviesState> {
 
   state: MoviesState = {
     total: 0,
@@ -81,13 +81,13 @@ class MoviesStore extends Store<MoviesState> {
   }
 
   addPage (page: number, body: any) {
-    var { exists, summaries, list } = this.state
+    const { exists, summaries, list } = this.state
 
     this.state.total = body.data.movie_count
     this.state.count = body.data.page_number * body.data.limit
 
     body.data.movies.forEach((movie: any) => {
-      var imdbId = movie.imdb_code
+      const imdbId = movie.imdb_code
 
       if (exists[imdbId]) {
         return
@@ -107,5 +107,3 @@ class MoviesStore extends Store<MoviesState> {
   }
 
 }
-
-export default MoviesStore

@@ -1,5 +1,5 @@
 import React = require('react')
-import { create } from 'react-free-style'
+import { create, injectStyle } from 'react-free-style'
 import { createContainer } from 'marty'
 import Spinner from '../../components/spinner'
 import { Movie } from '../../stores/movie'
@@ -9,16 +9,16 @@ import MovieDetails from './components/details'
 import { otherwise } from '../../utils/common'
 import App from '../../app'
 
-var Style = create()
+const Style = create()
 
-var CONTAINER_STYLE = Style.registerStyle({
+const CONTAINER_STYLE = Style.registerStyle({
   flex: 1,
   WebkitFlex: 1,
   backgroundColor: '#000',
   justifyContent: 'center'
 })
 
-var BACKGROUND_STYLE = Style.registerStyle({
+const BACKGROUND_STYLE = Style.registerStyle({
   position: 'absolute',
   top: 0,
   left: 0,
@@ -29,7 +29,7 @@ var BACKGROUND_STYLE = Style.registerStyle({
   backgroundPosition: 'center'
 })
 
-var MOVIE_PAGE_STYLE = Style.registerStyle({
+const MOVIE_PAGE_STYLE = Style.registerStyle({
   flex: '0 1 auto',
   WebkitFlex: '0 1 auto',
   flexDirection: 'column',
@@ -44,7 +44,7 @@ var MOVIE_PAGE_STYLE = Style.registerStyle({
   }
 })
 
-var MOVIE_POSTER_STYLE = Style.registerStyle({
+const MOVIE_POSTER_STYLE = Style.registerStyle({
   padding: '1em',
   maxHeight: 280,
   height: 'calc(100vh - 34px)',
@@ -54,7 +54,7 @@ var MOVIE_POSTER_STYLE = Style.registerStyle({
   }
 })
 
-var MOVIE_DETAILS_STYLE = Style.registerStyle({
+const MOVIE_DETAILS_STYLE = Style.registerStyle({
   flex: '0 1 auto',
   WebkitFlex: '0 1 auto',
   padding: '1em'
@@ -92,7 +92,7 @@ class MovieView extends React.Component<MovieProps, MovieState> {
   }
 
   render () {
-    var { movie, torrents } = this.props
+    const { movie, torrents } = this.props
 
     this.props.app.pageActionCreators.title(movie.title)
 
@@ -145,12 +145,12 @@ export default createContainer(Style.component(MovieView), {
   },
   fetch: {
     movie () {
-      var { imdbId } = this.context.router.getCurrentParams()
+      const { imdbId } = this.context.router.getCurrentParams()
 
       return this.app.movieStore.getMovie(imdbId)
     },
     torrents () {
-      var { imdbId } = this.context.router.getCurrentParams()
+      const { imdbId } = this.context.router.getCurrentParams()
 
       return this.app.torrentStore.getMovie(imdbId)
     }

@@ -1,7 +1,5 @@
 import { createConstants } from 'marty'
 
-var MovieConstants = createConstants([
+export default createConstants([
   'RECEIVE_TRAKT_SUMMARY'
 ])
-
-export default MovieConstants

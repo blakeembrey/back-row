@@ -2,7 +2,7 @@ import { Queries } from 'marty'
 import { trakt } from '../utils/request'
 import MoviesConstants from '../constants/movie'
 
-class MovieQueries extends Queries {
+export default class MovieQueries extends Queries {
 
   getMovie (imdbId: string) {
     this.dispatch(MoviesConstants.RECEIVE_TRAKT_SUMMARY_STARTING, imdbId)
@@ -13,5 +13,3 @@ class MovieQueries extends Queries {
   }
 
 }
-
-export default MovieQueries

@@ -61,9 +61,9 @@ interface MovieItemProps {
 class MovieItem extends React.Component<MovieItemProps, {}> {
 
   render () {
-    var { imdbId, cover, title} = this.props
+    const { imdbId, cover, title} = this.props
 
-    var backgroundStyle = {
+    const backgroundStyle = {
       backgroundImage: Style.url(cover)
     }
 

@@ -1,16 +1,17 @@
 import React = require('react')
-import { create } from 'react-free-style'
+import { create, injectStyle } from 'react-free-style'
 
-var Style = create()
+const Style = create()
 
-var CONTAINER_STYLE = Style.registerStyle({
+const CONTAINER_STYLE = Style.registerStyle({
   minWidth: '100%',
   minHeight: 'calc(100vh - 34px)',
   justifyContent: 'center',
   WebkitJustifyContent: 'center'
 })
 
-class Header extends React.Component<{ children: React.ComponentClass<any> }, {}> {
+@injectStyle(Style)
+export default class Container extends React.Component<{ children: React.ComponentClass<any> }, {}> {
 
   render () {
     return React.createElement(
@@ -21,5 +22,3 @@ class Header extends React.Component<{ children: React.ComponentClass<any> }, {}
   }
 
 }
-
-export default Style.component(Header)

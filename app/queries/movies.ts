@@ -2,10 +2,10 @@ import { Queries } from 'marty'
 import MoviesConstants from '../constants/movies'
 import { yts } from '../utils/request'
 
-class MoviesQueries extends Queries {
+export default class MoviesQueries extends Queries {
 
   getPage (from: number, limit: number) {
-    var page = Math.ceil((from + limit) / limit)
+    const page = Math.ceil((from + limit) / limit)
 
     this.dispatch(MoviesConstants.RECIEVE_YTS_PAGE_STARTING, page)
 
@@ -15,5 +15,3 @@ class MoviesQueries extends Queries {
   }
 
 }
-
-export default MoviesQueries

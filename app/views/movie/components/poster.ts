@@ -1,9 +1,9 @@
 import React = require('react')
 import { create } from 'react-free-style'
 
-var Style = create()
+const Style = create()
 
-var POSTER_STYLE = Style.registerStyle({
+const POSTER_STYLE = Style.registerStyle({
   flex: '0 0 auto',
   WebkitFlex: '0 0 auto',
   alignItems: 'center',
@@ -12,11 +12,11 @@ var POSTER_STYLE = Style.registerStyle({
   WebkitJustifyContent: 'center'
 })
 
-var CONTAINER_STYLE = Style.registerStyle({
+const CONTAINER_STYLE = Style.registerStyle({
   height: '100%'
 })
 
-var IMAGE_STYLE = Style.registerStyle({
+const IMAGE_STYLE = Style.registerStyle({
   borderRadius: 3,
   maxHeight: '100%',
   maxWidth: '100%'

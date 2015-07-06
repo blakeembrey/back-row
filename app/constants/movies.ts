@@ -1,7 +1,5 @@
 import { createConstants } from 'marty'
 
-var MoviesConstants = createConstants([
+export default createConstants([
   'RECIEVE_YTS_PAGE'
 ])
-
-export default MoviesConstants

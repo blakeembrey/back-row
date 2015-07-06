@@ -1,7 +1,5 @@
 import { createConstants } from 'marty'
 
-var TorrentConstants = createConstants([
+export default createConstants([
   'RECEIVE_YTS_QUERY'
 ])
-
-export default TorrentConstants

@@ -7,6 +7,6 @@ polyfill()
 
 attach(document.body)
 
-// Enable Marty developer tools.
-;(<any>window).Marty = Marty
-;(<any>window).React = React
+// Enable developer tools.
+;(<any> window).Marty = Marty
+;(<any> window).React = React

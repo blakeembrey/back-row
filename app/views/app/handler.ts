@@ -1,13 +1,13 @@
 import React = require('react')
-import { create } from 'react-free-style'
+import { create, injectStyle } from 'react-free-style'
 import { RouteHandler } from 'react-router'
 import Header from './components/header'
 import Container from './components/container'
 import { CLOUDS } from '../../utils/colors'
 
-var Style = create()
+const Style = create()
 
-var APP_STYLE = Style.registerStyle({
+const APP_STYLE = Style.registerStyle({
   color: CLOUDS,
   minWidth: '100vw',
   minHeight: '100vh'

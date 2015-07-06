@@ -12,7 +12,7 @@ import TorrentQueries from './queries/torrent'
 import PageActionCreators from './actions/page'
 import SessionActionCreators from './actions/session'
 
-class App extends Application {
+export default class App extends Application {
 
   movieStore: MovieStore
   moviesStore: MoviesStore
@@ -45,5 +45,3 @@ class App extends Application {
   }
 
 }
-
-export default App

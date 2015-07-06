@@ -1,11 +1,11 @@
 import React = require('react')
 import { Link } from 'react-router'
-import { create } from 'react-free-style'
+import { create, injectStyle } from 'react-free-style'
 import * as Colors from '../../../utils/colors'
 
-var Style = create()
+const Style = create()
 
-var HEADER_STYLE = Style.registerStyle({
+const HEADER_STYLE = Style.registerStyle({
   position: 'fixed',
   top: 0,
   left: 0,
@@ -14,7 +14,7 @@ var HEADER_STYLE = Style.registerStyle({
   zIndex: 10
 })
 
-var TITLE_STYLE = Style.registerStyle({
+const TITLE_STYLE = Style.registerStyle({
   fontSize: '1em',
   margin: 0,
   padding: '0.3em',
@@ -25,11 +25,12 @@ var TITLE_STYLE = Style.registerStyle({
   textDecoration: 'none'
 })
 
-var SPACER_STYLE = Style.registerStyle({
+const SPACER_STYLE = Style.registerStyle({
   height: 1 * 1.5 + 0.3 * 2 + 'em'
 })
 
-class Header extends React.Component<{}, {}> {
+@injectStyle(Style)
+export default class Header extends React.Component<{}, {}> {
 
   render () {
     return React.createElement(
@@ -49,7 +50,5 @@ class Header extends React.Component<{}, {}> {
   }
 
 }
-
-export default Style.component(Header)
 
 // lots and lots of love

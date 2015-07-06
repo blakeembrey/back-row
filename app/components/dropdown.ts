@@ -4,9 +4,9 @@ import OnClickOutsideMixin = require('react-onclickoutside')
 import { create } from 'react-free-style'
 import * as Colors from '../utils/colors'
 
-var Style = create()
+const Style = create()
 
-var DROPDOWN_STYLE = Style.registerStyle({
+const DROPDOWN_STYLE = Style.registerStyle({
   position: 'absolute',
   display: 'none',
   minWidth: 220,
@@ -19,11 +19,11 @@ var DROPDOWN_STYLE = Style.registerStyle({
   overflow: 'hidden'
 })
 
-var DROPDOWN_ACTIVE_STYLE = Style.registerStyle({
+const DROPDOWN_ACTIVE_STYLE = Style.registerStyle({
   display: 'block'
 })
 
-var DROPDOWN_ITEM_STYLE = Style.registerStyle({
+const DROPDOWN_ITEM_STYLE = Style.registerStyle({
   display: 'block',
   padding: '8px 16px',
   clear: 'both',
@@ -48,7 +48,7 @@ interface DropdownState {
   open: boolean
 }
 
-var Dropdown = React.createClass({
+const Dropdown = React.createClass({
 
   mixins: [OnClickOutsideMixin],
 
@@ -93,7 +93,7 @@ var Dropdown = React.createClass({
   },
 
   render () {
-    var items = this.props.items
+    const items = this.props.items
       .map((item: any, index: number) => {
         return this.renderItem(item, index)
       })
