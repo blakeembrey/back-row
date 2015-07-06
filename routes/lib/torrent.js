@@ -47,7 +47,7 @@ function disposeTorrent (key, torrent) {
  */
 function removeTorrent (engine, cb) {
   engine.remove(function (rmError) {
-    fs.unlink(join(TORRENT_INFO_HASH_PATH, engine.infoHash), function (unlinkError) {
+    fs.unlink(cacheFilename(engine), function (unlinkError) {
       cb(rmError || unlinkError)
     })
   })
@@ -61,6 +61,16 @@ function removeTorrent (engine, cb) {
  */
 function torrentLength (engine) {
   return engine.torrent ? engine.torrent.length : 0
+}
+
+/**
+ * Return a consistent file location for torrents.
+ *
+ * @param  {Object} engine
+ * @return {String}
+ */
+function cacheFilename (engine) {
+  return join(TORRENT_INFO_HASH_PATH, engine.infoHash + '.torrent')
 }
 
 /**
@@ -138,9 +148,8 @@ function createTorrent (torrent, done) {
       }
 
       var buf = parseTorrent.toTorrentFile(engine.torrent)
-      var path = join(TORRENT_INFO_HASH_PATH, engine.infoHash + '.torrent')
 
-      return fs.writeFile(path, buf, function (err) {
+      return fs.writeFile(cacheFilename(engine), buf, function (err) {
         return done(err, engine)
       })
     })
