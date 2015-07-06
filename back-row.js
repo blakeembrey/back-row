@@ -4,7 +4,7 @@ var express = require('express')
 var cors = require('cors')
 
 var app = express()
-var server = require('http').Server(app)
+var server = http.Server(app)
 
 var PORT = process.env.PORT || 3000
 
