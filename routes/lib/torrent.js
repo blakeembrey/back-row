@@ -106,7 +106,7 @@ function createTorrentFromLocation (uri, done) {
       return done(err)
     }
 
-    if (/https?:\/\//i.test(uri)) {
+    if (/^https?:\/\//i.test(uri)) {
       URI_CACHE.set(uri, torrent)
     }
 
