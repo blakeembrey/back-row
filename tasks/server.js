@@ -21,7 +21,6 @@ gulp.task('server', [
     hot: true,
     filename: 'bundle.js',
     publicPath: '/js/',
-    watchDelay: 300,
     stats: {
       colors: true,
       hash: false,
