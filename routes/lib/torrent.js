@@ -10,6 +10,7 @@ var parseTorrent = require('parse-torrent')
 
 var TORRENT_PATH = process.env.TORRENT_CACHE_PATH || join(os.tmpDir(), 'back-row')
 var TORRENT_INFO_HASH_PATH = join(TORRENT_PATH, 'info-hash')
+var TORRENT_CACHE_LIMIT = Number(process.env.TORRENT_CACHE_LIMIT) || 10 * 1000 * 1000 * 1000 // 10GB
 
 /**
  * Create a torrent cache.
@@ -17,7 +18,7 @@ var TORRENT_INFO_HASH_PATH = join(TORRENT_PATH, 'info-hash')
  * @type {LRUCache}
  */
 var TORRENT_CACHE = lruCache({
-  max: process.env.TORRENT_CACHE_LIMIT || 10 * 1000 * 1000 * 1000, // 10GB
+  max: TORRENT_CACHE_LIMIT,
   length: torrentLength,
   dispose: disposeTorrent
 }) /* { [infoHash: string]: engine } */
