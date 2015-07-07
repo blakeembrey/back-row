@@ -36,8 +36,10 @@ var URI_CACHE = lruCache(100) /* { [uri: string]: torrent } */
  * @param {String} key
  * @param {Object} torrent
  */
-function disposeTorrent (key, torrent) {
-  removeTorrent(torrent, logError)
+function disposeTorrent (key, engine) {
+  debug('dispose torrent', engine.torrent.name, key)
+
+  removeTorrent(engine, logError)
 }
 
 /**
@@ -61,6 +63,8 @@ function removeTorrent (engine, cb) {
  * @return {Number}
  */
 function torrentLength (engine) {
+  debug('torrent length', engine.torrent.name, engine.torrent.length)
+
   return engine.torrent ? engine.torrent.length : 0
 }
 
