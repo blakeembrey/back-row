@@ -1,6 +1,5 @@
 var gulp = require('gulp')
 var join = require('path').join
-var express = require('express')
 var WebpackDevServer = require('webpack-dev-server')
 var webpack = require('./support/webpack')
 var PORT = process.env.PORT || (process.env.PORT = 3000)
