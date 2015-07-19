@@ -18,6 +18,12 @@ if (!module.parent) {
   server.listen(PORT, function () {
     console.log('Server started on port ' + PORT)
   })
+
+  process.on('uncaughtException', function (err) {
+    console.error(new Date().toUTCString() + ' uncaughtException:', err.message)
+    console.error(err.stack)
+    process.exit(1)
+  })
 }
 
 module.exports = server
