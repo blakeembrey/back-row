@@ -21,7 +21,7 @@ const BUTTON_ACTIVE_STYLE = Style.registerStyle({
   cursor: 'pointer',
 
   '&:hover': {
-    backgroundColor: chroma(GREEN_SEA).brighter(5).hex()
+    backgroundColor: chroma(GREEN_SEA).brighter(0.5).hex()
   }
 })
 
