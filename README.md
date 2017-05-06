@@ -1,5 +1,7 @@
 # Back Row
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/blakeembrey/back-row.svg)](https://greenkeeper.io/)
+
 **Back Row** is a media server for watching movies and shows in a browser, streamed directly from a server.
 
 ## Deployment
